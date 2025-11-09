@@ -3,12 +3,6 @@
 BADGE Active Learning on AG News Text Classification
 ====================================================
 
-- Fixes:
-  * Correctly accumulate BADGE gradient embeddings across ALL batches
-    (indentation bug removed).
-  * Cap k by the actual number of computed embeddings (not just pool size).
-  * Make k-means++ selection robust when k > n or distances degenerate.
-
 Author: Ziyang Yu
 License: MIT
 """
@@ -47,6 +41,7 @@ def set_seed(seed: int = 42):
     torch.cuda.manual_seed_all(seed)
 
 class Classifier(nn.Module):
+    """Lightweight MLP head over the frozen encoder CLS embedding."""
     def __init__(self, hidden_size=768, num_labels=4):
         super().__init__()
         self.dropout = nn.Dropout(0.1)
@@ -78,6 +73,7 @@ def split_initial_pool(n_total: int, init_size: int, seed: int = 42) -> ALIndice
 # --------------------------
 
 class HFDatasetWrapper(Dataset):
+    """Wrap a HuggingFace split and produce tokenized batches for classification."""
     def __init__(self, hf_dataset, tokenizer, text_key="text", max_length=128):
         self.ds = hf_dataset
         self.text_key = text_key
@@ -110,6 +106,7 @@ def collate_fn(batch):
 # --------------------------
 
 def train_one_round(encoder, classifier, loader, device, lr=5e-5, epochs=2, weight_decay=0.01, max_grad_norm=1.0):
+    """Train only the classifier while keeping the encoder frozen."""
     classifier.train()
 
     no_decay = ["bias", "LayerNorm.weight"]
@@ -137,6 +134,7 @@ def train_one_round(encoder, classifier, loader, device, lr=5e-5, epochs=2, weig
         for batch in loader:
             batch = {k: v.to(device) for k, v in batch.items()}
 
+            # Compute frozen encoder features under no_grad to save memory/compute
             with torch.no_grad():
                 encoder_outputs = encoder(
                     input_ids=batch['input_ids'],
@@ -189,7 +187,7 @@ def badge_gradient_embeddings(encoder, classifier, loader, device, num_classes: 
     map_idx = []
 
     for batch in loader:
-        # keep labels; we simply don't use them
+        # Keep labels in batch structure, but do not use them for embeddings
         batch = {k: v.to(device) for k, v in batch.items()}
 
         encoder_outputs = encoder(
@@ -217,7 +215,7 @@ def badge_gradient_embeddings(encoder, classifier, loader, device, num_classes: 
         return np.zeros((0, 1), dtype=np.float32), []
     E = np.concatenate(embs, axis=0)
 
-    # Normalize for stability
+    # Normalize for stability (scale-invariant distances for k-means++)
     norms = np.linalg.norm(E, axis=1, keepdims=True)
     E = E / np.maximum(norms, 1e-8)
     return E.astype(np.float32), map_idx
@@ -240,13 +238,14 @@ def kmeanspp_select_sklearn(embs: np.ndarray, k: int, rng: np.random.Generator):
 
 
 def kmeanspp_select(embs: np.ndarray, k: int, rng: np.random.Generator) -> List[int]:
+    """Minimal k-means++ seeding with robust fallbacks for degenerate cases."""
     n = embs.shape[0]
     if n == 0 or k <= 0:
         return []
     if k > n:
         k = n
 
-    # First center: max norm
+    # First center: pick the point with maximum L2 norm
     norms = np.sum(embs * embs, axis=1)
     first = int(np.argmax(norms))
     centers = [first]
@@ -259,6 +258,7 @@ def kmeanspp_select(embs: np.ndarray, k: int, rng: np.random.Generator) -> List[
 
     for i in range(1, k):
         # print("Selected {}/{} centers...".format(i, k), end="\r")
+        # D^2-weighted sampling; guard against zero/NaN probabilities
         denom = np.maximum(d2.sum(), 1e-12)
         probs = d2 / denom
         if (not np.isfinite(probs).all()) or (probs.sum() <= 0) or np.allclose(d2, 0.0):
@@ -281,6 +281,7 @@ def kmeanspp_select(embs: np.ndarray, k: int, rng: np.random.Generator) -> List[
 # --------------------------
 
 def make_loader(dataset: Dataset, idxs: List[int], batch_size: int, shuffle: bool, add_indices: bool=False):
+    """Create a DataLoader over a subset; indices are not exposed in batches here."""
     if add_indices:
         def collate_with_idx(batch):
             out = collate_fn(batch)
@@ -313,11 +314,12 @@ def main():
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
+    # Reproducibility
     set_seed(args.seed)
     rng = np.random.default_rng(args.seed)
     device = torch.device(args.device)
 
-    # Load AG News
+    # Load AG News and tokenize on-the-fly
     raw = load_dataset("ag_news")
     num_labels = 4
     tokenizer = AutoTokenizer.from_pretrained(args.model_name, use_fast=True, cache_dir="./hf_cache")
@@ -325,12 +327,12 @@ def main():
     train_ds = HFDatasetWrapper(raw["train"], tokenizer, max_length=args.max_length)
     test_ds  = HFDatasetWrapper(raw["test"],  tokenizer, max_length=args.max_length)
 
-    # Pools
+    # Initialize labeled/unlabeled pools for Active Learning
     N = len(train_ds)
     pools = split_initial_pool(N, args.seed_size, seed=args.seed)
     print(f"Total train: {N}. Seed labeled: {len(pools.labeled)}. Unlabeled pool: {len(pools.unlabeled)}.")
 
-    # Encoder (frozen DistilBERT) + small classifier
+    # Encoder (frozen DistilBERT) + small classifier head
     encoder_config = DistilBertConfig.from_pretrained('distilbert-base-uncased', cache_dir="./hf_cache")
     encoder = DistilBertModel.from_pretrained('distilbert-base-uncased', config=encoder_config, cache_dir="./hf_cache")
     for p in encoder.parameters():
@@ -345,7 +347,7 @@ def main():
         print("=" * 80)
         print(f"Round {r}/{args.rounds} — Labeled {len(pools.labeled)} | Unlabeled {len(pools.unlabeled)}")
 
-        # Train
+        # Train classifier on the currently labeled set, then evaluate
         train_loader = make_loader(train_ds, pools.labeled, batch_size=args.batch_size, shuffle=True)
         if len(pools.labeled) > 0:
             train_one_round(encoder, classifier, train_loader, device, lr=args.lr, epochs=args.epochs)
@@ -355,7 +357,7 @@ def main():
         if r == args.rounds:
             break
 
-        # BADGE on pool
+        # BADGE on pool: compute gradient embeddings, then k-means++ select
         pool_loader = make_loader(train_ds, pools.unlabeled, batch_size=128, shuffle=False)
         embs, _ = badge_gradient_embeddings(encoder, classifier, pool_loader, device, num_classes=num_labels)
         n_pool = embs.shape[0]
