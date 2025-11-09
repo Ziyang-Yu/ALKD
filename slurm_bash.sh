@@ -24,8 +24,5 @@ conda activate /local/scratch/zyu273/alkd/env
 
 # python run.py --alg badge --did 0 --lr 0.001  --model resnet --data data --nQuery 10000 --nStart 10000 --nEnd 50000 --nEmb 256 --trunc -1 --aug 1 --dummy 1 --data CIFAR10 --lr 0.001 
 # python run.py --model mlp --nQuery 10000 --did 6 --alg bait
-python badge_agnews.py \
-  --epochs 2 --rounds 5 \
-  --batch_size 96 --eval_batch_size 256 \
-  --query_size 1000 --seed_size 200 \
-  --max_length 160 --max_pool 60000
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
+python -u run_badge_agnews.py --batch_size 64 --epochs 3 --query_size 1000 --rounds 20 --device cuda
