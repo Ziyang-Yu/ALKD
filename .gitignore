@@ -5,3 +5,4 @@ env/
 .vscode/
 hf_cache/
 .env
+__pycache__/
