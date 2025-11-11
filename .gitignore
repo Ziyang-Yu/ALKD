@@ -4,3 +4,4 @@ env/
 .locks/
 .vscode/
 hf_cache/
+.env

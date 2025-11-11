@@ -1,1 +1,0 @@
-sbatch slurm_bash.sh 
