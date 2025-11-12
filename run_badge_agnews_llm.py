@@ -29,7 +29,7 @@ from transformers import (
 from torch.optim import AdamW
 from dotenv import load_dotenv
 
-import os
+import os, subprocess
 load_dotenv()   # reads .env
 key = os.getenv("OPENAI_API_KEY")
 
@@ -492,6 +492,9 @@ def main():
                         help="Optional Hugging Face cache directory.")
 
     args = parser.parse_args()
+
+    git_commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
+    print(f"Latest git commit hash: {git_commit_hash}")
 
     # Reproducibility
     set_seed(args.seed)

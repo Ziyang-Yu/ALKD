@@ -8,7 +8,7 @@ License: MIT
 """
 
 import argparse
-import os
+import os, subprocess
 import random
 import time
 from dataclasses import dataclass
@@ -319,6 +319,9 @@ def main():
     set_seed(args.seed)
     rng = np.random.default_rng(args.seed)
     device = torch.device(args.device)
+
+    git_commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
+    print(f"Latest git commit hash: {git_commit_hash}")
 
     # Load AG News and tokenize on-the-fly
     raw = load_dataset("ag_news")

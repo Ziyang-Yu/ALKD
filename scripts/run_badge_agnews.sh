@@ -16,7 +16,7 @@ source /local/scratch/zyu273/miniconda3/etc/profile.d/conda.sh
 conda activate /local/scratch/zyu273/alkd/env
 export CUBLAS_WORKSPACE_CONFIG=:4096:8
 
-
+git pull origin &&
 
 
 python -u run_badge_agnews.py --batch_size 64 --epochs 3 --query_size 1000 --rounds 20 --device cuda
