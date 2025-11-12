@@ -1,7 +1,18 @@
 #!/usr/bin/env python3
 """
-BADGE Active Learning on AG News with LLM Annotator
+BADGE 主动学习在 AG News 上的应用（使用 LLM 标注器）
 ===================================================
+
+本脚本实现了 BADGE 主动学习算法，使用 LLM（大语言模型）作为标注器来标注选中的样本。
+与基础版本不同，这里使用 LLM 来获取标签，而不是使用数据集的真实标签。
+
+主要特点：
+- 使用冻结的 DistilBERT 编码器提取特征
+- 轻量级 MLP 分类头进行训练
+- BADGE 算法选择样本（基于梯度嵌入的 k-means++）
+- 使用 LLM（OpenAI API）进行样本标注
+- 支持并行 LLM 调用以提高效率
+- 对于 LLM 标注失败的情况，回退到模型预测
 
 Author: Ziyang Yu
 License: MIT
@@ -36,24 +47,27 @@ key = os.getenv("OPENAI_API_KEY")
 torch.use_deterministic_algorithms(True)
 
 # --------------------------
-# Utils
+# 工具函数
 # --------------------------
 
 def set_seed(seed: int = 42):
+    """设置随机种子以确保实验可复现"""
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
 
 class Classifier(nn.Module):
-    """Lightweight MLP head over the frozen encoder CLS embedding."""
+    """轻量级 MLP 分类头，基于冻结编码器的 CLS 嵌入"""
     def __init__(self, hidden_size=768, num_labels=4):
         super().__init__()
-        self.dropout = nn.Dropout(0.1)
-        self.dense = nn.Linear(hidden_size, hidden_size)
-        self.activation = nn.GELU()
-        self.classifier = nn.Linear(hidden_size, num_labels)
+        self.dropout = nn.Dropout(0.1)  # Dropout 层用于正则化
+        self.dense = nn.Linear(hidden_size, hidden_size)  # 全连接层
+        self.activation = nn.GELU()  # GELU 激活函数
+        self.classifier = nn.Linear(hidden_size, num_labels)  # 最终分类层
+    
     def forward(self, x):
+        """前向传播：对编码器特征进行分类"""
         x = self.dropout(x)
         x = self.dense(x)
         x = self.activation(x)
@@ -62,62 +76,68 @@ class Classifier(nn.Module):
 
 @dataclass
 class ALIndices:
-    labeled: List[int]
-    unlabeled: List[int]
+    """主动学习索引池：已标注和未标注样本的索引"""
+    labeled: List[int]      # 已标注样本的索引列表
+    unlabeled: List[int]    # 未标注样本的索引列表
 
 def split_initial_pool(n_total: int, init_size: int, seed: int = 42) -> ALIndices:
+    """初始化主动学习池：随机选择初始标注样本"""
     rng = np.random.default_rng(seed)
     idx = np.arange(n_total)
-    rng.shuffle(idx)
-    init = idx[:init_size].tolist()
-    rest = idx[init_size:].tolist()
+    rng.shuffle(idx)  # 随机打乱索引
+    init = idx[:init_size].tolist()      # 初始标注样本
+    rest = idx[init_size:].tolist()     # 剩余未标注样本
     return ALIndices(labeled=init, unlabeled=rest)
 
 # --------------------------
-# Data
+# 数据处理
 # --------------------------
 
 class HFDatasetWrapper(Dataset):
-    """Wrap a HuggingFace split and produce tokenized batches for classification.
-
-    Supports optional label overrides via a mapping from original dataset index
-    to an integer class id. This allows plugging in LLM annotations at runtime.
+    """包装 HuggingFace 数据集，为分类任务生成 tokenized 批次
+    
+    支持通过标签覆盖机制，允许在运行时插入 LLM 标注的标签。
+    这样可以在主动学习过程中动态更新样本的标签。
     """
     def __init__(self, hf_dataset, tokenizer, text_key="text", max_length=128,
                  label_overrides: Optional[Dict[int, int]] = None):
-        self.ds = hf_dataset
-        self.text_key = text_key
-        self.tokenizer = tokenizer
-        self.max_length = max_length
-        self.label_overrides: Dict[int, int] = label_overrides or {}
+        self.ds = hf_dataset          # HuggingFace 数据集对象
+        self.text_key = text_key      # 文本字段的键名
+        self.tokenizer = tokenizer    # 分词器
+        self.max_length = max_length  # 最大序列长度
+        self.label_overrides: Dict[int, int] = label_overrides or {}  # 标签覆盖字典
 
     def __len__(self):
         return len(self.ds)
 
     def __getitem__(self, i):
+        """获取单个样本：tokenize 文本并返回标签（优先使用覆盖标签）"""
         item = self.ds[i]
+        # 对文本进行 tokenization
         enc = self.tokenizer(
             item[self.text_key],
-            truncation=True,
+            truncation=True,           # 截断超长文本
             max_length=self.max_length,
-            padding="max_length",
-            return_tensors="pt",
+            padding="max_length",      # 填充到最大长度
+            return_tensors="pt",       # 返回 PyTorch 张量
         )
-        enc = {k: v.squeeze(0) for k, v in enc.items()}
-        # Use override if present; else fall back to dataset label
+        enc = {k: v.squeeze(0) for k, v in enc.items()}  # 移除批次维度
+        # 如果存在覆盖标签则使用，否则使用数据集原始标签
         if i in self.label_overrides:
             label = int(self.label_overrides[i])
         else:
-            label = int(item["label"])  # from HF dataset
+            label = int(item["label"])  # 从 HuggingFace 数据集获取
         enc["labels"] = torch.tensor(label, dtype=torch.long)
-        # Always expose the original dataset index to downstream consumers
+        # 始终暴露原始数据集索引，供下游使用
         enc["idx"] = torch.tensor(i, dtype=torch.long)
         return enc
 
     def set_label_override(self, i: int, label: int):
+        """设置单个样本的标签覆盖"""
         self.label_overrides[int(i)] = int(label)
 
     def set_many_label_overrides(self, indices: List[int], labels: List[int]):
+        """批量设置标签覆盖（用于 LLM 标注结果）"""
         for ii, ll in zip(indices, labels):
             self.set_label_override(int(ii), int(ll))
 
@@ -127,15 +147,16 @@ def collate_fn(batch):
     return out
 
 # --------------------------
-# Training / Eval
+# 训练和评估
 # --------------------------
 
 def train_one_round(encoder, classifier, loader, device, lr=5e-5, epochs=2, weight_decay=0.01, max_grad_norm=1.0):
-    """Train only the classifier while keeping the encoder frozen."""
-    # Ensure frozen encoder runs deterministically (no dropout)
+    """训练一轮：只训练分类头，保持编码器冻结"""
+    # 确保冻结的编码器以确定性模式运行（无 dropout）
     encoder.eval()
     classifier.train()
 
+    # 为不同参数组设置不同的权重衰减（bias 和 LayerNorm 不衰减）
     no_decay = ["bias", "LayerNorm.weight"]
     optimizer_grouped_parameters = [
         {
@@ -150,6 +171,7 @@ def train_one_round(encoder, classifier, loader, device, lr=5e-5, epochs=2, weig
 
     optimizer = AdamW(optimizer_grouped_parameters, lr=lr)
     num_train_steps = epochs * max(1, len(loader))
+    # 线性学习率调度器，带 warmup
     scheduler = get_linear_schedule_with_warmup(
         optimizer,
         num_warmup_steps=max(1, num_train_steps // 10),
@@ -161,25 +183,26 @@ def train_one_round(encoder, classifier, loader, device, lr=5e-5, epochs=2, weig
         for batch in loader:
             batch = {k: v.to(device) for k, v in batch.items()}
 
-            # Compute frozen encoder features under no_grad to save memory/compute
+            # 在 no_grad 下计算冻结编码器的特征，节省内存和计算
             with torch.no_grad():
                 encoder_outputs = encoder(
                     input_ids=batch['input_ids'],
                     attention_mask=batch['attention_mask']
                 )
-                hidden_states = encoder_outputs.last_hidden_state[:, 0]  # [CLS]
+                hidden_states = encoder_outputs.last_hidden_state[:, 0]  # 取 [CLS] token 的嵌入
 
             logits = classifier(hidden_states)
             loss = criterion(logits, batch['labels'])
 
             loss.backward()
-            nn.utils.clip_grad_norm_(classifier.parameters(), max_grad_norm)
+            nn.utils.clip_grad_norm_(classifier.parameters(), max_grad_norm)  # 梯度裁剪
             optimizer.step()
             scheduler.step()
             optimizer.zero_grad(set_to_none=True)
 
 @torch.no_grad()
 def evaluate(encoder, classifier, loader, device) -> float:
+    """评估模型在测试集上的准确率"""
     encoder.eval()
     classifier.eval()
     correct = 0
@@ -191,22 +214,32 @@ def evaluate(encoder, classifier, loader, device) -> float:
             input_ids=batch['input_ids'],
             attention_mask=batch['attention_mask']
         )
-        hidden_states = encoder_outputs.last_hidden_state[:, 0]
+        hidden_states = encoder_outputs.last_hidden_state[:, 0]  # [CLS] 嵌入
         logits = classifier(hidden_states)
-        preds = logits.argmax(dim=-1)
-        correct += (preds == batch["labels"]).sum().item()
-        total += preds.numel()
+        preds = logits.argmax(dim=-1)  # 预测类别
+        correct += (preds == batch["labels"]).sum().item()  # 统计正确预测数
+        total += preds.numel()  # 统计总样本数
 
-    return correct / max(1, total)
+    return correct / max(1, total)  # 返回准确率
 
 # --------------------------
-# BADGE: gradient embeddings
+# BADGE: 梯度嵌入计算
 # --------------------------
 
 @torch.no_grad()
 def badge_gradient_embeddings(encoder, classifier, loader, device, num_classes: int) -> Tuple[np.ndarray, List[int]]:
     """
-    g(x) = flatten((p - e_yhat) ⊗ h), where h is [CLS] feature and p is softmax over classes.
+    计算 BADGE 梯度嵌入
+    
+    BADGE 算法通过计算梯度嵌入来选择样本，公式为：
+    g(x) = flatten((p - e_yhat) ⊗ h)
+    其中：
+    - h 是 [CLS] token 的特征向量
+    - p 是类别上的 softmax 概率分布
+    - e_yhat 是预测类别的 one-hot 向量
+    - ⊗ 表示外积
+    
+    这个嵌入近似于损失函数对分类头参数的梯度，用于衡量样本的信息量。
     """
     encoder.eval()
     classifier.eval()
@@ -214,22 +247,23 @@ def badge_gradient_embeddings(encoder, classifier, loader, device, num_classes: 
     map_idx = []
 
     for batch in loader:
-        # Keep labels in batch structure, but do not use them for embeddings
+        # 保留标签在批次结构中，但不用于计算嵌入
         batch = {k: v.to(device) for k, v in batch.items()}
 
         encoder_outputs = encoder(
             input_ids=batch['input_ids'],
             attention_mask=batch['attention_mask']
         )
-        h = encoder_outputs.last_hidden_state[:, 0]      # [B, H]
-        logits = classifier(h)                            # [B, C]
+        h = encoder_outputs.last_hidden_state[:, 0]      # [B, H] CLS 嵌入
+        logits = classifier(h)                            # [B, C] 分类 logits
 
-        probs = torch.softmax(logits, dim=-1)            # [B, C]
-        yhat = probs.argmax(dim=-1)                      # [B]
+        probs = torch.softmax(logits, dim=-1)            # [B, C] 类别概率
+        yhat = probs.argmax(dim=-1)                      # [B] 预测类别
         onehot = torch.zeros_like(probs)
-        onehot[torch.arange(probs.size(0)), yhat] = 1.0
-        delta = probs - onehot                           # [B, C]
+        onehot[torch.arange(probs.size(0)), yhat] = 1.0  # [B, C] one-hot 向量
+        delta = probs - onehot                           # [B, C] 概率与 one-hot 的差
 
+        # 计算梯度嵌入：外积后展平
         g = (delta.unsqueeze(-1) * h.unsqueeze(1)).reshape(probs.size(0), -1)  # [B, C*H]
         embs.append(g.cpu().float().numpy())
 
@@ -242,20 +276,28 @@ def badge_gradient_embeddings(encoder, classifier, loader, device, num_classes: 
         return np.zeros((0, 1), dtype=np.float32), []
     E = np.concatenate(embs, axis=0)
 
-    # Normalize for stability (scale-invariant distances for k-means++)
+    # 归一化以提高稳定性（k-means++ 需要尺度不变的距离）
     norms = np.linalg.norm(E, axis=1, keepdims=True)
     E = E / np.maximum(norms, 1e-8)
     return E.astype(np.float32), map_idx
 
 # --------------------------
-# k-means++ style selection
+# k-means++ 风格的选择算法
 # --------------------------
 
 from sklearn.cluster import kmeans_plusplus
 import numpy as np
 
 def kmeanspp_select_sklearn(embs: np.ndarray, k: int, rng: np.random.Generator):
-    # sklearn 会自己做 D^2 加权采样，返回 (centers, indices)
+    """
+    使用 sklearn 的 k-means++ 算法选择样本
+    
+    k-means++ 初始化策略：
+    1. 随机选择第一个中心点
+    2. 对于后续中心点，根据到最近中心的距离平方（D^2）进行加权采样
+    这样可以确保选择的样本在梯度嵌入空间中具有多样性。
+    """
+    # sklearn 会自动进行 D^2 加权采样，返回 (centers, indices)
     _, indices = kmeans_plusplus(
         embs.astype(np.float32, copy=False),
         n_clusters=k,
@@ -303,11 +345,11 @@ def kmeanspp_select(embs: np.ndarray, k: int, rng: np.random.Generator) -> List[
     return centers
 
 # --------------------------
-# Active Learning Loop
+# 主动学习循环
 # --------------------------
 
 def make_loader(dataset: Dataset, idxs: List[int], batch_size: int, shuffle: bool, add_indices: bool=False):
-    """Create a DataLoader over a subset; indices are not exposed in batches here."""
+    """为数据集的子集创建 DataLoader"""
     if add_indices:
         def collate_with_idx(batch):
             out = collate_fn(batch)
@@ -327,7 +369,7 @@ def make_loader(dataset: Dataset, idxs: List[int], batch_size: int, shuffle: boo
         )
 
 # --------------------------
-# LLM Annotator
+# LLM 标注器
 # --------------------------
 
 AGNEWS_LABELS = [
@@ -337,25 +379,25 @@ AGNEWS_LABELS = [
     "Sci/Tech",     # 3
 ]
 
-LABEL_NAME_TO_ID = {name.lower(): idx for idx, name in enumerate(AGNEWS_LABELS)}
+LABEL_NAME_TO_ID = {name.lower(): idx for idx, name in enumerate(AGNEWS_LABELS)}  # 标签名到 ID 的映射
 
 def _parse_llm_label(text: str) -> Optional[int]:
-    """Extract a single label id from a model response string.
-
-    Accepts either numeric class ids (0-3) or label names from AGNEWS_LABELS.
-    Returns None if parsing fails.
+    """从 LLM 响应字符串中提取单个标签 ID
+    
+    接受数字类别 ID (0-3) 或 AGNEWS_LABELS 中的标签名称。
+    如果解析失败则返回 None。
     """
     if text is None:
         return None
     s = str(text).strip()
-    # Try integer first
+    # 首先尝试解析为整数
     try:
         val = int(s)
         if 0 <= val < len(AGNEWS_LABELS):
             return val
     except Exception:
         pass
-    # Try to find label name
+    # 尝试查找标签名称
     low = s.lower()
     for name, idx in LABEL_NAME_TO_ID.items():
         if name in low:
@@ -365,10 +407,10 @@ def _parse_llm_label(text: str) -> Optional[int]:
 def annotate_with_llm_openai_single(text: str, model: str = "gpt-4o-mini", api_key_env: str = "OPENAI_API_KEY",
                                     system_prompt: Optional[str] = None, temperature: float = 0.0,
                                     max_retries: int = 3) -> int:
-    """Annotate a single text with one LLM call.
-
-    Returns a single integer label id (0..3). Raises RuntimeError on failure
-    after retries so caller can decide how to fallback.
+    """使用单次 LLM 调用标注单个文本
+    
+    返回单个整数标签 ID (0..3)。如果重试后仍然失败，抛出 RuntimeError，
+    以便调用者决定如何回退。
     """
     api_key = os.environ.get(api_key_env)
     if not api_key:
@@ -423,10 +465,10 @@ def annotate_with_llm_openai_single(text: str, model: str = "gpt-4o-mini", api_k
 def annotate_with_llm_openai_parallel(texts: List[str], model: str = "gpt-4o-mini", api_key_env: str = "OPENAI_API_KEY",
                                       system_prompt: Optional[str] = None, temperature: float = 0.0,
                                       max_retries: int = 3, max_workers: int = 16) -> List[Optional[int]]:
-    """Annotate multiple texts by issuing one LLM call per text in parallel.
-
-    Returns a list of labels where failures are represented by None. Caller can
-    then selectively fallback only for failed items.
+    """并行标注多个文本，每个文本使用一次 LLM 调用
+    
+    返回标签列表，失败的情况用 None 表示。调用者可以
+    选择性地仅对失败的项进行回退。
     """
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -453,7 +495,7 @@ def annotate_with_llm_openai_parallel(texts: List[str], model: str = "gpt-4o-min
 
 @torch.no_grad()
 def annotate_with_classifier(encoder, classifier, tokenizer, texts: List[str], device) -> List[int]:
-    """Fallback: use current model predictions as pseudo-labels when LLM is unavailable."""
+    """回退方案：当 LLM 不可用时，使用当前模型预测作为伪标签"""
     classifier.eval()
     enc = tokenizer(
         texts,
@@ -468,57 +510,63 @@ def annotate_with_classifier(encoder, classifier, tokenizer, texts: List[str], d
     return logits.argmax(dim=-1).cpu().tolist()
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--model_name", type=str, default="distilbert-base-uncased")
-    parser.add_argument("--max_length", type=int, default=128)
-    parser.add_argument("--seed_size", type=int, default=200)
-    parser.add_argument("--query_size", type=int, default=1000)
-    parser.add_argument("--rounds", type=int, default=8)
-    parser.add_argument("--epochs", type=int, default=3)
-    parser.add_argument("--batch_size", type=int, default=64)
-    parser.add_argument("--lr", type=float, default=5e-5)
-    parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
-    parser.add_argument("--seed", type=int, default=42)
-    # LLM annotator options
+    """主函数：执行 BADGE 主动学习流程（使用 LLM 标注）"""
+    parser = argparse.ArgumentParser(description="BADGE 主动学习在 AG News 上的应用（LLM 标注）")
+    # 模型参数
+    parser.add_argument("--model_name", type=str, default="distilbert-base-uncased", help="预训练模型名称")
+    parser.add_argument("--max_length", type=int, default=128, help="最大序列长度")
+    # 主动学习参数
+    parser.add_argument("--seed_size", type=int, default=200, help="初始标注样本数量")
+    parser.add_argument("--query_size", type=int, default=1000, help="每轮查询的样本数量")
+    parser.add_argument("--rounds", type=int, default=8, help="主动学习轮数")
+    # 训练参数
+    parser.add_argument("--epochs", type=int, default=3, help="每轮训练的 epoch 数")
+    parser.add_argument("--batch_size", type=int, default=64, help="训练批次大小")
+    parser.add_argument("--lr", type=float, default=5e-5, help="学习率")
+    # 系统参数
+    parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="计算设备")
+    parser.add_argument("--seed", type=int, default=42, help="随机种子")
+    # LLM 标注器选项
     parser.add_argument("--llm_model", type=str, default="gpt-4o-mini",
-                        help="LLM model name for OpenAI provider.")
+                        help="OpenAI 提供商的 LLM 模型名称")
     parser.add_argument("--llm_api_key_env", type=str, default="OPENAI_API_KEY",
-                        help="Env var name holding LLM API key.")
+                        help="存储 LLM API 密钥的环境变量名")
     parser.add_argument("--llm_batch_size", type=int, default=32,
-                        help="(Deprecated for LLM) Previously used for batch requests; ignored when --use_llm_annotator is set.")
+                        help="(已弃用) 之前用于批量请求；设置 --use_llm_annotator 时忽略")
     parser.add_argument("--llm_workers", type=int, default=8,
-                        help="Number of parallel threads for per-text LLM calls.")
+                        help="每个文本 LLM 调用的并行线程数")
     parser.add_argument("--cache_dir", type=str, default=None,
-                        help="Optional Hugging Face cache directory.")
+                        help="可选的 Hugging Face 缓存目录")
 
     args = parser.parse_args()
 
+    # 打印 git commit hash 用于实验追踪
     git_commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
     print(f"Latest git commit hash: {git_commit_hash}")
 
-    # Reproducibility
+    # 设置随机种子以确保可复现性
     set_seed(args.seed)
     rng = np.random.default_rng(args.seed)
     device = torch.device(args.device)
 
-    # Load AG News and tokenize on-the-fly
+    # 加载 AG News 数据集并动态 tokenize
     raw = load_dataset("ag_news")
-    num_labels = 4
+    num_labels = 4  # AG News 有 4 个类别
     tokenizer = AutoTokenizer.from_pretrained(args.model_name, use_fast=True, cache_dir=args.cache_dir)
 
     train_ds = HFDatasetWrapper(raw["train"], tokenizer, max_length=args.max_length)
     test_ds  = HFDatasetWrapper(raw["test"],  tokenizer, max_length=args.max_length)
 
-    # Initialize labeled/unlabeled pools for Active Learning
+    # 初始化主动学习的标注/未标注池
     N = len(train_ds)
     pools = split_initial_pool(N, args.seed_size, seed=args.seed)
     print(f"Total train: {N}. Seed labeled: {len(pools.labeled)}. Unlabeled pool: {len(pools.unlabeled)}.")
 
-    # Encoder (frozen) + small classifier head
+    # 加载编码器（冻结）和分类头
     encoder_config = AutoConfig.from_pretrained(args.model_name, cache_dir=args.cache_dir)
     encoder = AutoModel.from_pretrained(args.model_name, config=encoder_config, cache_dir=args.cache_dir)
     for p in encoder.parameters():
-        p.requires_grad = False
+        p.requires_grad = False  # 冻结编码器参数
     encoder = encoder.to(device)
 
     classifier = Classifier(hidden_size=encoder_config.hidden_size, num_labels=num_labels).to(device)
@@ -527,11 +575,12 @@ def main():
 
     acc_list = []
 
+    # 主动学习主循环
     for r in range(args.rounds):
         print("=" * 80)
         print(f"Round {r}/{args.rounds} — Labeled {len(pools.labeled)} | Unlabeled {len(pools.unlabeled)}")
 
-        # Train classifier on the currently labeled set, then evaluate
+        # 在当前标注集上训练分类器，然后评估
         train_loader = make_loader(train_ds, pools.labeled, batch_size=args.batch_size, shuffle=True)
         if len(pools.labeled) > 0:
             train_one_round(encoder, classifier, train_loader, device, lr=args.lr, epochs=args.epochs)
@@ -542,7 +591,7 @@ def main():
         if r == args.rounds:
             break
 
-        # BADGE on pool: compute gradient embeddings, then k-means++ select
+        # BADGE 选择：计算梯度嵌入，然后使用 k-means++ 选择
         pool_loader = make_loader(train_ds, pools.unlabeled, batch_size=128, shuffle=False)
         embs, _ = badge_gradient_embeddings(encoder, classifier, pool_loader, device, num_classes=num_labels)
         n_pool = embs.shape[0]
@@ -554,24 +603,23 @@ def main():
         print(f"Selecting {k} points via BADGE (k-means++ in gradient space)...")
         t = time.time()
         print("Using sklearn k-means++ for selection...")
-        select_rel = kmeanspp_select_sklearn(embs, k, rng)  # indices relative to pools.unlabeled
+        select_rel = kmeanspp_select_sklearn(embs, k, rng)  # 相对于 pools.unlabeled 的索引
         print(f"Selection took {time.time() - t:.2f} seconds.")
         newly_selected = [pools.unlabeled[i] for i in select_rel]
 
-        # Annotate selected indices using LLM (or fallback to model predictions)
+        # 使用 LLM 标注选中的样本（失败时回退到模型预测）
         print(f"Annotating {len(newly_selected)} selected samples...")
         selected_texts = [raw["train"][i]["text"] for i in newly_selected]
         llm_labels: List[int] = []
 
-
-        # Per-text LLM calls executed in parallel threads
+        # 在并行线程中执行每个文本的 LLM 调用
         parallel_labels = annotate_with_llm_openai_parallel(
             selected_texts,
             model=args.llm_model,
             api_key_env=args.llm_api_key_env,
             max_workers=max(1, int(args.llm_workers)),
         )
-        # Identify failures and fallback only for those
+        # 识别失败项并仅对它们进行回退
         failed_idx = [i for i, v in enumerate(parallel_labels) if v is None]
         if failed_idx:
             failed_texts = [selected_texts[i] for i in failed_idx]
@@ -582,10 +630,10 @@ def main():
         llm_labels = [int(x) for x in parallel_labels]  # type: ignore
         print("LLM annotations received (with selective fallback if needed).")
 
-        # Store overrides so subsequent training uses these labels
+        # 存储覆盖标签，以便后续训练使用这些标签
         train_ds.set_many_label_overrides(newly_selected, llm_labels)
 
-        # Move selected from unlabeled -> labeled
+        # 将选中的样本从未标注池移到标注池
         pools.labeled.extend(newly_selected)
         mask = np.ones(len(pools.unlabeled), dtype=bool)
         mask[select_rel] = False
