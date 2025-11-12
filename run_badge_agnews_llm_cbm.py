@@ -9,7 +9,7 @@ Active Learning (BADGE) on AG News with:
 - Sklearn k-means++ for BADGE selection
 """
 
-import os, sys, time, random, math, json, concurrent.futures
+import os, sys, time, random, math, json, concurrent.futures, subprocess
 from dataclasses import dataclass
 from typing import List, Dict, Optional, Tuple
 
@@ -344,6 +344,10 @@ def main():
     print("="*20)
     for k,v in vars(args).items():
         print(f"{k}: {v}")
+
+    # print lastest git commit hash
+    git_commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
+    print(f"Latest git commit hash: {git_commit_hash}")
 
     set_seed(args.seed)
     device = torch.device(args.device)
