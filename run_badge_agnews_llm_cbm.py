@@ -186,7 +186,6 @@ def train_one_round(encoder, head, loader, device, lr=5e-5, epochs=3, weight_dec
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=max(1, steps//10), num_training_steps=steps)
 
     for i in range(epochs):
-        print(f"Training epoch {i+1}/{epochs}...")
         for batch in loader:
             batch = {k: v.to(device) for k, v in batch.items()}
             # Compute frozen encoder features under no_grad
@@ -197,8 +196,6 @@ def train_one_round(encoder, head, loader, device, lr=5e-5, epochs=3, weight_dec
             c_targets = batch.get("concepts", None)
             loss = head.loss(logits, batch["labels"], z_c=z_c, c_targets=c_targets.float(), alpha_concept=alpha_concept)
             loss.backward()
-            for param in head.parameters():
-                print(f"Param grad norm: {param.grad.norm().item() if param.grad is not None else 'None'}")
             nn.utils.clip_grad_norm_(head.parameters(), max_grad_norm)
             optimizer.step(); scheduler.step(); optimizer.zero_grad(set_to_none=True)
 
