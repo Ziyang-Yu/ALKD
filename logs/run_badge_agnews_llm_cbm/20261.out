@@ -1,0 +1,303 @@
+====================
+Arguments:
+====================
+model_name: FacebookAI/roberta-base
+max_length: 128
+seed_size: 50
+query_size: 5
+rounds: 100
+epochs: 5
+batch_size: 16
+lr: 0.1
+alpha_concept: 0.0
+concept_l1: 0.0
+device: cuda
+seed: 42
+cache_dir: None
+llm_model: gpt-4o-mini
+llm_api_key_env: OPENAI_API_KEY
+llm_workers: 8
+Seed labeled=50, unlabeled=119950
+LLM annotated concepts for initial 50 samples, with 0 failures.
+
+=== Round 0/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 25.00%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 1.06s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 1/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 46.30%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.97s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 2/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 55.20%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.96s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 3/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 61.34%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.94s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 4/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 71.18%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.93s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 5/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 75.51%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.94s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 6/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 77.08%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 1.04s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 7/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 75.67%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 1.05s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 8/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 78.61%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 1.03s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 9/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 78.68%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 1.02s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 10/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 77.82%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 1.01s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 11/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 82.03%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.95s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 12/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 78.95%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 1.08s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 13/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 76.16%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.98s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 14/100 ===
+Training epoch 1/5...
+Training epoch 2/5...
+Training epoch 3/5...
+Training epoch 4/5...
+Training epoch 5/5...
+Head parameter concept_linear.weight did NOT change during training.
+Head parameter concept_linear.bias did NOT change during training.
+Head parameter task_head.0.weight did NOT change during training.
+Head parameter task_head.0.bias did NOT change during training.
+Head parameter task_head.3.weight did NOT change during training.
+Head parameter task_head.3.bias did NOT change during training.
+Test accuracy: 79.88%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)

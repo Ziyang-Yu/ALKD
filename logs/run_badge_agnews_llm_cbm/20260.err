@@ -1,0 +1,8 @@
+Some weights of RobertaModel were not initialized from the model checkpoint at FacebookAI/roberta-base and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Traceback (most recent call last):
+  File "/local/scratch/zyu273/alkd/run_badge_agnews_llm_cbm.py", line 469, in <module>
+    main()
+  File "/local/scratch/zyu273/alkd/run_badge_agnews_llm_cbm.py", line 409, in main
+    if v != head.state_dict()[k]:
+RuntimeError: Boolean value of Tensor with more than one value is ambiguous

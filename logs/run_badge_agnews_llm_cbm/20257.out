@@ -1,0 +1,56 @@
+====================
+Arguments:
+====================
+model_name: FacebookAI/roberta-base
+max_length: 128
+seed_size: 50
+query_size: 5
+rounds: 100
+epochs: 0
+batch_size: 16
+lr: 0.1
+alpha_concept: 0.0
+concept_l1: 0.0
+device: cuda
+seed: 42
+cache_dir: None
+llm_model: gpt-4o-mini
+llm_api_key_env: OPENAI_API_KEY
+llm_workers: 8
+Seed labeled=50, unlabeled=119950
+LLM annotated concepts for initial 50 samples, with 0 failures.
+
+=== Round 0/100 ===
+Test accuracy: 25.00%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.93s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 1/100 ===
+Test accuracy: 25.00%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.92s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 2/100 ===
+Test accuracy: 25.00%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.94s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 3/100 ===
+Test accuracy: 25.00%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.98s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 4/100 ===
+Test accuracy: 25.00%

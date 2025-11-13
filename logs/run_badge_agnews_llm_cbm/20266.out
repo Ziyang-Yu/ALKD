@@ -1,0 +1,414 @@
+====================
+Arguments:
+====================
+model_name: FacebookAI/roberta-base
+max_length: 128
+seed_size: 50
+query_size: 5
+rounds: 100
+epochs: 5
+batch_size: 16
+lr: 0.1
+alpha_concept: 0.0
+concept_l1: 0.0
+device: cuda
+seed: 42
+cache_dir: None
+llm_model: gpt-4o-mini
+llm_api_key_env: OPENAI_API_KEY
+llm_workers: 8
+Seed labeled=50, unlabeled=119950
+LLM annotated concepts for initial 50 samples, with 0 failures.
+
+=== Round 0/100 ===
+Training epoch 1/5...
+Param grad norm: 0.2305033802986145
+Param grad norm: 0.019523661583662033
+Param grad norm: 0.2654497027397156
+Param grad norm: 0.10907499492168427
+Param grad norm: 0.9953012466430664
+Param grad norm: 0.26126694679260254
+Param grad norm: 0.1172143965959549
+Param grad norm: 0.011872148141264915
+Param grad norm: 0.2108653038740158
+Param grad norm: 0.08633440732955933
+Param grad norm: 0.7666932940483093
+Param grad norm: 0.1911231130361557
+Param grad norm: 0.5569142699241638
+Param grad norm: 0.07261371612548828
+Param grad norm: 0.4548187553882599
+Param grad norm: 0.21493907272815704
+Param grad norm: 1.4234318733215332
+Param grad norm: 0.33005738258361816
+Param grad norm: 0.4780575931072235
+Param grad norm: 0.036996133625507355
+Param grad norm: 0.1617606282234192
+Param grad norm: 0.4009723365306854
+Param grad norm: 0.9922715425491333
+Param grad norm: 0.7996008396148682
+Training epoch 2/5...
+Param grad norm: 0.9775081276893616
+Param grad norm: 0.11667782813310623
+Param grad norm: 0.38591593503952026
+Param grad norm: 0.5018922686576843
+Param grad norm: 1.1276637315750122
+Param grad norm: 0.4906318485736847
+Param grad norm: 0.22126518189907074
+Param grad norm: 0.026418745517730713
+Param grad norm: 0.1183449774980545
+Param grad norm: 0.449373722076416
+Param grad norm: 0.589447021484375
+Param grad norm: 0.46681028604507446
+Param grad norm: 0.011792088858783245
+Param grad norm: 0.004388369154185057
+Param grad norm: 0.027577413246035576
+Param grad norm: 0.20374302566051483
+Param grad norm: 0.2327030748128891
+Param grad norm: 0.26003512740135193
+Param grad norm: 0.00879187323153019
+Param grad norm: 0.000667643966153264
+Param grad norm: 0.006643161177635193
+Param grad norm: 0.3502313792705536
+Param grad norm: 0.33642077445983887
+Param grad norm: 0.44306713342666626
+Training epoch 3/5...
+Param grad norm: 0.005800165235996246
+Param grad norm: 0.0012283361284062266
+Param grad norm: 0.002779212547466159
+Param grad norm: 0.08209638297557831
+Param grad norm: 0.08242186903953552
+Param grad norm: 0.11608743667602539
+Param grad norm: 0.0060095274820923805
+Param grad norm: 0.000541937246453017
+Param grad norm: 0.0010216839145869017
+Param grad norm: 0.08077854663133621
+Param grad norm: 0.07269886881113052
+Param grad norm: 0.08815182745456696
+Param grad norm: 0.001103014568798244
+Param grad norm: 7.97879692981951e-05
+Param grad norm: 0.001099243527278304
+Param grad norm: 0.3899920880794525
+Param grad norm: 0.24474243819713593
+Param grad norm: 0.34724661707878113
+Param grad norm: 0.0010546238627284765
+Param grad norm: 8.32987716421485e-05
+Param grad norm: 0.0006986363441683352
+Param grad norm: 0.32233041524887085
+Param grad norm: 0.282503217458725
+Param grad norm: 0.4344022870063782
+Training epoch 4/5...
+Param grad norm: 0.00028830801602452993
+Param grad norm: 2.1388394088717178e-05
+Param grad norm: 0.00016468287503812462
+Param grad norm: 0.26441967487335205
+Param grad norm: 0.16263383626937866
+Param grad norm: 0.2686293125152588
+Param grad norm: 0.0007574135670438409
+Param grad norm: 5.795238757855259e-05
+Param grad norm: 8.297060412587598e-05
+Param grad norm: 0.16996873915195465
+Param grad norm: 0.09786287695169449
+Param grad norm: 0.16511981189250946
+Param grad norm: 0.0007452032878063619
+Param grad norm: 0.00026470207376405597
+Param grad norm: 0.0003668643767014146
+Param grad norm: 0.13132257759571075
+Param grad norm: 0.08030197769403458
+Param grad norm: 0.1422138661146164
+Param grad norm: 0.0002496468659956008
+Param grad norm: 1.9424383935984224e-05
+Param grad norm: 4.6771001507295296e-05
+Param grad norm: 0.3601601719856262
+Param grad norm: 0.23603664338588715
+Param grad norm: 0.4059237241744995
+Training epoch 5/5...
+Param grad norm: 0.00037425931077450514
+Param grad norm: 9.782662527868524e-05
+Param grad norm: 0.000133898836793378
+Param grad norm: 0.09390134364366531
+Param grad norm: 0.054502151906490326
+Param grad norm: 0.08553925156593323
+Param grad norm: 0.00027026483439840376
+Param grad norm: 2.1101706806803122e-05
+Param grad norm: 3.3744607208063826e-05
+Param grad norm: 0.10634314268827438
+Param grad norm: 0.07378745824098587
+Param grad norm: 0.07790553569793701
+Param grad norm: 0.0003776416997425258
+Param grad norm: 2.5299419576185755e-05
+Param grad norm: 0.00012296120985411108
+Param grad norm: 0.20758356153964996
+Param grad norm: 0.12930044531822205
+Param grad norm: 0.21716544032096863
+Param grad norm: 0.0006076002027839422
+Param grad norm: 4.6496741560986266e-05
+Param grad norm: 8.709882240509614e-05
+Param grad norm: 0.4464878737926483
+Param grad norm: 0.3190840780735016
+Param grad norm: 0.5502227544784546
+Test accuracy: 25.00%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.91s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 1/100 ===
+Training epoch 1/5...
+Param grad norm: 0.0004536040942184627
+Param grad norm: 3.2601634302409366e-05
+Param grad norm: 8.864393748808652e-05
+Param grad norm: 0.11563524603843689
+Param grad norm: 0.06954631954431534
+Param grad norm: 0.11615653336048126
+Param grad norm: 4.403962884680368e-05
+Param grad norm: 9.013661838253029e-06
+Param grad norm: 2.088030487357173e-05
+Param grad norm: 0.15465442836284637
+Param grad norm: 0.1055566817522049
+Param grad norm: 0.21830607950687408
+Param grad norm: 0.00013102412049192935
+Param grad norm: 5.218886872171424e-05
+Param grad norm: 0.00014448835281655192
+Param grad norm: 0.1459175944328308
+Param grad norm: 0.08802392333745956
+Param grad norm: 0.18022212386131287
+Param grad norm: 0.00040638059726916254
+Param grad norm: 3.1021834729472175e-05
+Param grad norm: 8.378377242479473e-05
+Param grad norm: 0.1456650197505951
+Param grad norm: 0.06672823429107666
+Param grad norm: 0.1664353460073471
+Training epoch 2/5...
+Param grad norm: 0.019465791061520576
+Param grad norm: 0.0015734179178252816
+Param grad norm: 0.0033025448210537434
+Param grad norm: 0.04180767759680748
+Param grad norm: 0.020955026149749756
+Param grad norm: 0.015098615549504757
+Param grad norm: 0.0569349080324173
+Param grad norm: 0.0043245600536465645
+Param grad norm: 0.006813434883952141
+Param grad norm: 0.14949050545692444
+Param grad norm: 0.05875850096344948
+Param grad norm: 0.21845529973506927
+Param grad norm: 0.07629098743200302
+Param grad norm: 0.005272859241813421
+Param grad norm: 0.04589318111538887
+Param grad norm: 0.18040575087070465
+Param grad norm: 0.13083113729953766
+Param grad norm: 0.26176512241363525
+Param grad norm: 0.7165510058403015
+Param grad norm: 0.05478725954890251
+Param grad norm: 0.10852524638175964
+Param grad norm: 0.2269594371318817
+Param grad norm: 0.3375670313835144
+Param grad norm: 0.26337939500808716
+Training epoch 3/5...
+Param grad norm: 0.8103386163711548
+Param grad norm: 0.055394820868968964
+Param grad norm: 0.14089849591255188
+Param grad norm: 0.2650444209575653
+Param grad norm: 0.2730950117111206
+Param grad norm: 0.25887683033943176
+Param grad norm: 0.7463922500610352
+Param grad norm: 0.06048520281910896
+Param grad norm: 0.10682431608438492
+Param grad norm: 0.16064751148223877
+Param grad norm: 0.11174016445875168
+Param grad norm: 0.12123414874076843
+Param grad norm: 0.5179111361503601
+Param grad norm: 0.07145651429891586
+Param grad norm: 0.07881204038858414
+Param grad norm: 0.1686132550239563
+Param grad norm: 0.08469408005475998
+Param grad norm: 0.08735310286283493
+Param grad norm: 1.0568424463272095
+Param grad norm: 0.0809227004647255
+Param grad norm: 0.14815689623355865
+Param grad norm: 0.3150251507759094
+Param grad norm: 0.2252885401248932
+Param grad norm: 0.2813080847263336
+Training epoch 4/5...
+Param grad norm: 2.431023359298706
+Param grad norm: 0.1867445856332779
+Param grad norm: 0.13780000805854797
+Param grad norm: 0.44708937406539917
+Param grad norm: 0.17411652207374573
+Param grad norm: 0.2771672308444977
+Param grad norm: 4.137897968292236
+Param grad norm: 0.3548232316970825
+Param grad norm: 0.36179202795028687
+Param grad norm: 0.9130507707595825
+Param grad norm: 0.46953243017196655
+Param grad norm: 0.47919735312461853
+Param grad norm: 0.3152681887149811
+Param grad norm: 0.024642039090394974
+Param grad norm: 0.03660036250948906
+Param grad norm: 0.13131293654441833
+Param grad norm: 0.07203356176614761
+Param grad norm: 0.17928391695022583
+Param grad norm: 9.62063217163086
+Param grad norm: 0.7488391995429993
+Param grad norm: 0.6973998546600342
+Param grad norm: 1.3156518936157227
+Param grad norm: 0.7370864748954773
+Param grad norm: 0.6180093288421631
+Training epoch 5/5...
+Param grad norm: 2.2877426147460938
+Param grad norm: 0.17968353629112244
+Param grad norm: 0.18077491223812103
+Param grad norm: 0.44093480706214905
+Param grad norm: 0.27504149079322815
+Param grad norm: 0.25174105167388916
+Param grad norm: 0.25806665420532227
+Param grad norm: 0.018737461417913437
+Param grad norm: 0.07945545762777328
+Param grad norm: 0.17204298079013824
+Param grad norm: 0.13537999987602234
+Param grad norm: 0.16807404160499573
+Param grad norm: 0.6962699294090271
+Param grad norm: 0.023833230137825012
+Param grad norm: 0.04554970934987068
+Param grad norm: 0.18311232328414917
+Param grad norm: 0.09698352217674255
+Param grad norm: 0.20166359841823578
+Param grad norm: 1.2170370817184448
+Param grad norm: 0.14202721416950226
+Param grad norm: 0.16037267446517944
+Param grad norm: 0.30737408995628357
+Param grad norm: 0.19131885468959808
+Param grad norm: 0.17958074808120728
+Test accuracy: 48.66%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.93s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 2/100 ===
+Training epoch 1/5...
+Param grad norm: 0.5883855223655701
+Param grad norm: 0.04355969652533531
+Param grad norm: 0.07902494072914124
+Param grad norm: 0.16578704118728638
+Param grad norm: 0.11309762299060822
+Param grad norm: 0.18260274827480316
+Param grad norm: 1.1612942218780518
+Param grad norm: 0.14146238565444946
+Param grad norm: 0.1392052322626114
+Param grad norm: 0.325787216424942
+Param grad norm: 0.1308967024087906
+Param grad norm: 0.12541387975215912
+Param grad norm: 4.486536502838135
+Param grad norm: 0.35079553723335266
+Param grad norm: 0.359445184469223
+Param grad norm: 0.5933201909065247
+Param grad norm: 0.3951190710067749
+Param grad norm: 0.24856208264827728
+Param grad norm: 13.175825119018555
+Param grad norm: 1.0225419998168945
+Param grad norm: 1.753055453300476
+Param grad norm: 1.5971622467041016
+Param grad norm: 1.4912885427474976
+Param grad norm: 0.5641128420829773
+Training epoch 2/5...
+Param grad norm: 0.6971160769462585
+Param grad norm: 0.05245235189795494
+Param grad norm: 0.213096484541893
+Param grad norm: 0.16736210882663727
+Param grad norm: 0.22957630455493927
+Param grad norm: 0.0689210444688797
+Param grad norm: 0.44197162985801697
+Param grad norm: 0.02958717569708824
+Param grad norm: 0.2962554395198822
+Param grad norm: 0.21481990814208984
+Param grad norm: 0.2493717521429062
+Param grad norm: 0.08782389014959335
+Param grad norm: 3.72158145904541
+Param grad norm: 0.2942560911178589
+Param grad norm: 1.3726590871810913
+Param grad norm: 0.9323949217796326
+Param grad norm: 1.3432360887527466
+Param grad norm: 0.44384652376174927
+Param grad norm: 1.6179122924804688
+Param grad norm: 0.14789508283138275
+Param grad norm: 1.4221078157424927
+Param grad norm: 0.9972409009933472
+Param grad norm: 1.522093415260315
+Param grad norm: 0.6069155931472778
+Training epoch 3/5...
+Param grad norm: 0.898610532283783
+Param grad norm: 0.07202011346817017
+Param grad norm: 0.6661432981491089
+Param grad norm: 0.4356553256511688
+Param grad norm: 0.6290613412857056
+Param grad norm: 0.23523324728012085
+Param grad norm: 1.138547658920288
+Param grad norm: 0.0870232880115509
+Param grad norm: 0.5042501091957092
+Param grad norm: 0.3392280638217926
+Param grad norm: 0.5477135181427002
+Param grad norm: 0.24279016256332397
+Param grad norm: 1.7016847133636475
+Param grad norm: 0.13534776866436005
+Param grad norm: 0.4830487072467804
+Param grad norm: 0.37153732776641846
+Param grad norm: 0.3833205997943878
+Param grad norm: 0.21063539385795593
+Param grad norm: 2.342832088470459
+Param grad norm: 0.1886594444513321
+Param grad norm: 0.5751023292541504
+Param grad norm: 0.4317377507686615
+Param grad norm: 0.5110534429550171
+Param grad norm: 0.2164781540632248
+Training epoch 4/5...
+Param grad norm: 1.0102276802062988
+Param grad norm: 0.07472047954797745
+Param grad norm: 0.266188383102417
+Param grad norm: 0.23560194671154022
+Param grad norm: 0.25736236572265625
+Param grad norm: 0.18330763280391693
+Param grad norm: 2.4954395294189453
+Param grad norm: 0.19546811282634735
+Param grad norm: 0.48046883940696716
+Param grad norm: 0.4361041784286499
+Param grad norm: 0.26384881138801575
+Param grad norm: 0.1541784107685089
+Param grad norm: 0.7273433208465576
+Param grad norm: 0.058675650507211685
+Param grad norm: 0.21772581338882446
+Param grad norm: 0.19829510152339935
+Param grad norm: 0.11603443324565887
+Param grad norm: 0.05121178925037384
+Param grad norm: 2.957188606262207
+Param grad norm: 0.22772656381130219
+Param grad norm: 0.6857925057411194
+Param grad norm: 0.5995678901672363
+Param grad norm: 0.5018560886383057
+Param grad norm: 0.2899710536003113
+Training epoch 5/5...
+Param grad norm: 1.6990489959716797
+Param grad norm: 0.130602166056633
+Param grad norm: 0.2930302321910858
+Param grad norm: 0.2572464346885681
+Param grad norm: 0.21931226551532745
+Param grad norm: 0.1339254379272461
+Param grad norm: 1.7093851566314697
+Param grad norm: 0.13804152607917786
+Param grad norm: 0.27402767539024353
+Param grad norm: 0.2348078042268753
+Param grad norm: 0.2843776047229767
+Param grad norm: 0.15259145200252533
+Param grad norm: 0.6573513150215149
+Param grad norm: 0.1346786469221115
+Param grad norm: 0.27914899587631226
+Param grad norm: 0.2494591623544693
+Param grad norm: 0.1799698919057846
+Param grad norm: 0.10013456642627716
+Param grad norm: 0.7505371570587158
+Param grad norm: 0.07130370289087296
+Param grad norm: 0.1743374615907669
+Param grad norm: 0.15900899469852448
+Param grad norm: 0.1977122277021408
+Param grad norm: 0.11158766597509384
