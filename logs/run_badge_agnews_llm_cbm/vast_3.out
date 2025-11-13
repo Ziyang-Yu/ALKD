@@ -310,3 +310,12 @@ LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
 LLM annotated concepts for 5 samples, with 0 failures.
 
 === Round 36/100 ===
+Test accuracy: 80.75%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.92s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 37/100 ===
+Test accuracy: 82.29%

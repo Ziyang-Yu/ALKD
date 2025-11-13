@@ -159,3 +159,19 @@ LLM annotated concepts for 5 samples, with 0 failures.
 
 === Round 17/100 ===
 Test accuracy: 80.04%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 1.01s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 18/100 ===
+Test accuracy: 84.18%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 1.00s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 19/100 ===
+Test accuracy: 79.91%
