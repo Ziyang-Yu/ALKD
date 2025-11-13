@@ -237,7 +237,29 @@ def compute_gradient_embeddings(encoder, head, loader, device) -> Tuple[np.ndarr
         return np.zeros((0, 1), dtype=np.float32), []
     return np.concatenate(embs, axis=0), map_idx
 
-def kmeanspp_select_sklearn(embs: np.ndarray, k: int, rng: np.random.Generator) -> List[int]:
+# def kmeanspp_select_sklearn(embs: np.ndarray, k: int, rng: np.random.Generator) -> List[int]:
+#     """
+#     使用 sklearn 的 k-means++ 算法选择样本
+    
+#     k-means++ 初始化策略：
+#     1. 随机选择第一个中心点
+#     2. 对于后续中心点，根据到最近中心的距离平方（D^2）进行加权采样
+#     这样可以确保选择的样本在梯度嵌入空间中具有多样性。
+    
+#     注意：这里使用 KMeans 的一次迭代 + k-means++ 初始化来近似 k-means++ 选择。
+#     """
+#     if embs.shape[0] == 0: 
+#         return []
+#     k = min(k, embs.shape[0])
+#     # KMeans with one iteration + k-means++ init yields centers ~= seeding
+#     km = KMeans(n_clusters=k, init="k-means++", n_init=1, max_iter=1, random_state=int(rng.integers(1e9)))
+#     km.fit(embs)
+#     # 选择距离聚类中心最近的样本
+#     from sklearn.metrics import pairwise_distances_argmin_min
+#     idx, _ = pairwise_distances_argmin_min(km.cluster_centers_, embs, metric="euclidean")
+#     return idx.tolist()
+
+def kmeanspp_select_sklearn(embs: np.ndarray, k: int, rng: np.random.Generator):
     """
     使用 sklearn 的 k-means++ 算法选择样本
     
@@ -245,19 +267,14 @@ def kmeanspp_select_sklearn(embs: np.ndarray, k: int, rng: np.random.Generator) 
     1. 随机选择第一个中心点
     2. 对于后续中心点，根据到最近中心的距离平方（D^2）进行加权采样
     这样可以确保选择的样本在梯度嵌入空间中具有多样性。
-    
-    注意：这里使用 KMeans 的一次迭代 + k-means++ 初始化来近似 k-means++ 选择。
     """
-    if embs.shape[0] == 0: 
-        return []
-    k = min(k, embs.shape[0])
-    # KMeans with one iteration + k-means++ init yields centers ~= seeding
-    km = KMeans(n_clusters=k, init="k-means++", n_init=1, max_iter=1, random_state=int(rng.integers(1e9)))
-    km.fit(embs)
-    # 选择距离聚类中心最近的样本
-    from sklearn.metrics import pairwise_distances_argmin_min
-    idx, _ = pairwise_distances_argmin_min(km.cluster_centers_, embs, metric="euclidean")
-    return idx.tolist()
+    # sklearn 会自动进行 D^2 加权采样，返回 (centers, indices)
+    _, indices = kmeans_plusplus(
+        embs.astype(np.float32, copy=False),
+        n_clusters=k,
+        random_state=int(rng.integers(0, 2**32 - 1)),
+    )
+    return list(map(int, indices))
 
 # ----------------------------
 # 训练和评估
