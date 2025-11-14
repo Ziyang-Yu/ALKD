@@ -103,7 +103,7 @@ class HFDatasetWrapper(Dataset):
         item = self.ds[i]
         # 对文本进行 tokenization
         enc = self.tokenizer(
-            item["text"],
+            item[self.text_key],
             truncation=True,           # 截断超长文本
             max_length=self.max_length,
             padding="max_length",      # 填充到最大长度
@@ -343,12 +343,52 @@ def make_loader(dataset: Dataset, idxs: List[int], batch_size: int, shuffle: boo
             collate_fn=collate_fn
         )
 
+# 数据集配置字典
+DATASET_CONFIGS = {
+    "ag_news": {
+        "dataset_name": "ag_news",
+        "text_key": "text",
+        "label_key": "label",
+        "labels": ["World", "Sports", "Business", "Sci/Tech"],
+        "num_labels": 4,
+        "result_dir": "agnews",
+    },
+    "imdb": {
+        "dataset_name": "imdb",
+        "text_key": "text",
+        "label_key": "label",
+        "labels": ["negative", "positive"],
+        "num_labels": 2,
+        "result_dir": "imdb",
+    },
+    "amazon_polarity": {
+        "dataset_name": "amazon_polarity",
+        "text_key": "content",
+        "label_key": "label",
+        "labels": ["negative", "positive"],
+        "num_labels": 2,
+        "result_dir": "amazon",
+    },
+    "yelp_polarity": {
+        "dataset_name": "yelp_polarity",
+        "text_key": "text",
+        "label_key": "label",
+        "labels": ["negative", "positive"],
+        "num_labels": 2,
+        "result_dir": "yelp",
+    },
+}
+
 def main():
     """主函数：执行 BADGE 主动学习流程"""
-    parser = argparse.ArgumentParser(description="BADGE 主动学习在 AG News 上的应用")
+    parser = argparse.ArgumentParser(description="BADGE 主动学习在文本分类任务上的应用")
     # 模型参数
     parser.add_argument("--model_name", type=str, default="distilbert-base-uncased", help="预训练模型名称")
     parser.add_argument("--max_length", type=int, default=128, help="最大序列长度")
+    # 数据集参数
+    parser.add_argument("--dataset", type=str, default="ag_news", 
+                        choices=["ag_news", "imdb", "amazon_polarity", "yelp_polarity"],
+                        help="选择数据集：ag_news, imdb, amazon_polarity, yelp_polarity")
     # 主动学习参数
     parser.add_argument("--seed_size", type=int, default=200, help="初始标注样本数量")
     parser.add_argument("--query_size", type=int, default=1000, help="每轮查询的样本数量")
@@ -372,13 +412,22 @@ def main():
     git_commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
     print(f"Latest git commit hash: {git_commit_hash}")
 
-    # 加载 AG News 数据集并动态 tokenize
-    raw = load_dataset("ag_news")
-    num_labels = 4  # AG News 有 4 个类别
+    # 获取数据集配置
+    if args.dataset not in DATASET_CONFIGS:
+        raise ValueError(f"不支持的数据集: {args.dataset}。支持的数据集: {list(DATASET_CONFIGS.keys())}")
+    config = DATASET_CONFIGS[args.dataset]
+    num_labels = config["num_labels"]
+    
+    print(f"\n使用数据集: {args.dataset}")
+    print(f"标签数量: {num_labels}")
+    print(f"标签: {config['labels']}")
+
+    # 加载数据集并动态 tokenize
+    raw = load_dataset(config["dataset_name"])
     tokenizer = AutoTokenizer.from_pretrained(args.model_name, use_fast=True, cache_dir=args.cache_dir)
 
-    train_ds = HFDatasetWrapper(raw["train"], tokenizer, max_length=args.max_length)
-    test_ds  = HFDatasetWrapper(raw["test"],  tokenizer, max_length=args.max_length)
+    train_ds = HFDatasetWrapper(raw["train"], tokenizer, text_key=config["text_key"], max_length=args.max_length)
+    test_ds  = HFDatasetWrapper(raw["test"],  tokenizer, text_key=config["text_key"], max_length=args.max_length)
 
     # 初始化主动学习的标注/未标注池
     N = len(train_ds)

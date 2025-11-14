@@ -372,20 +372,52 @@ def make_loader(dataset: Dataset, idxs: List[int], batch_size: int, shuffle: boo
 # LLM 标注器
 # --------------------------
 
-AGNEWS_LABELS = [
-    "World",        # 0
-    "Sports",       # 1
-    "Business",     # 2
-    "Sci/Tech",     # 3
-]
+# 数据集配置字典（不包含概念，因为此文件不使用 CBM）
+DATASET_CONFIGS = {
+    "ag_news": {
+        "dataset_name": "ag_news",
+        "text_key": "text",
+        "label_key": "label",
+        "labels": ["World", "Sports", "Business", "Sci/Tech"],
+        "num_labels": 4,
+        "result_dir": "agnews",
+    },
+    "imdb": {
+        "dataset_name": "imdb",
+        "text_key": "text",
+        "label_key": "label",
+        "labels": ["negative", "positive"],
+        "num_labels": 2,
+        "result_dir": "imdb",
+    },
+    "amazon_polarity": {
+        "dataset_name": "amazon_polarity",
+        "text_key": "content",
+        "label_key": "label",
+        "labels": ["negative", "positive"],
+        "num_labels": 2,
+        "result_dir": "amazon",
+    },
+    "yelp_polarity": {
+        "dataset_name": "yelp_polarity",
+        "text_key": "text",
+        "label_key": "label",
+        "labels": ["negative", "positive"],
+        "num_labels": 2,
+        "result_dir": "yelp",
+    },
+}
 
-LABEL_NAME_TO_ID = {name.lower(): idx for idx, name in enumerate(AGNEWS_LABELS)}  # 标签名到 ID 的映射
-
-def _parse_llm_label(text: str) -> Optional[int]:
+def _parse_llm_label(text: str, num_labels: int = 4, labels: Optional[List[str]] = None) -> Optional[int]:
     """从 LLM 响应字符串中提取单个标签 ID
     
-    接受数字类别 ID (0-3) 或 AGNEWS_LABELS 中的标签名称。
+    接受数字类别 ID 或标签名称。
     如果解析失败则返回 None。
+    
+    Args:
+        text: LLM 响应字符串
+        num_labels: 标签总数
+        labels: 标签名称列表（用于映射）
     """
     if text is None:
         return None
@@ -393,24 +425,35 @@ def _parse_llm_label(text: str) -> Optional[int]:
     # 首先尝试解析为整数
     try:
         val = int(s)
-        if 0 <= val < len(AGNEWS_LABELS):
+        if 0 <= val < num_labels:
             return val
     except Exception:
         pass
     # 尝试查找标签名称
-    low = s.lower()
-    for name, idx in LABEL_NAME_TO_ID.items():
-        if name in low:
-            return idx
+    if labels:
+        label_name_to_id = {name.lower(): idx for idx, name in enumerate(labels)}
+        low = s.lower()
+        for name, idx in label_name_to_id.items():
+            if name in low:
+                return idx
     return None
 
 def annotate_with_llm_openai_single(text: str, model: str = "gpt-4o-mini", api_key_env: str = "OPENAI_API_KEY",
                                     system_prompt: Optional[str] = None, temperature: float = 0.0,
-                                    max_retries: int = 3) -> int:
+                                    max_retries: int = 3, labels: Optional[List[str]] = None) -> int:
     """使用单次 LLM 调用标注单个文本
     
-    返回单个整数标签 ID (0..3)。如果重试后仍然失败，抛出 RuntimeError，
+    返回单个整数标签 ID。如果重试后仍然失败，抛出 RuntimeError，
     以便调用者决定如何回退。
+    
+    Args:
+        text: 待标注的文本
+        model: LLM 模型名称
+        api_key_env: API 密钥环境变量名
+        system_prompt: 系统提示（可选）
+        temperature: 温度参数
+        max_retries: 最大重试次数
+        labels: 标签名称列表（用于生成提示）
     """
     api_key = os.environ.get(api_key_env)
     if not api_key:
@@ -423,16 +466,21 @@ def annotate_with_llm_openai_single(text: str, model: str = "gpt-4o-mini", api_k
 
     client = OpenAI(api_key=api_key)
 
+    if labels is None:
+        labels = ["World", "Sports", "Business", "Sci/Tech"]
+    
+    label_str = ", ".join([f"{i}={l}" for i, l in enumerate(labels)])
+    
     system = system_prompt or (
-        "You are a careful annotation assistant for AG News classification.\n"
-        "Return only the label id (0,1,2,3) for the input.\n"
-        "Label mapping: 0=World, 1=Sports, 2=Business, 3=Sci/Tech.\n"
+        f"You are a careful annotation assistant for text classification.\n"
+        f"Return only the label id (0-{len(labels)-1}) for the input.\n"
+        f"Label mapping: {label_str}.\n"
     )
 
     sanitized = text.strip().replace("\n", " ")
     user_prompt = (
-        "Classify the following news text into one of: 0=World, 1=Sports, 2=Business, 3=Sci/Tech.\n"
-        "Return only one integer (0, 1, 2, or 3).\n\n"
+        f"Classify the following text into one of: {label_str}.\n"
+        f"Return only one integer (0-{len(labels)-1}).\n\n"
         f"TEXT: {sanitized}"
     )
 
@@ -448,11 +496,11 @@ def annotate_with_llm_openai_single(text: str, model: str = "gpt-4o-mini", api_k
                 temperature=temperature,
             )
             content = (resp.choices[0].message.content or "").strip()
-            label = _parse_llm_label(content)
+            label = _parse_llm_label(content, num_labels=len(labels), labels=labels)
             if label is None:
                 # try permissive parse
                 import re
-                m = re.search(r"(?<!\d)([0-3])(?!\d)", content)
+                m = re.search(rf"(?<!\d)([0-{len(labels)-1}])(?!\d)", content)
                 if m:
                     return int(m.group(1))
                 raise RuntimeError(f"LLM response unparsable: {content[:100]}...")
@@ -464,11 +512,21 @@ def annotate_with_llm_openai_single(text: str, model: str = "gpt-4o-mini", api_k
 
 def annotate_with_llm_openai_parallel(texts: List[str], model: str = "gpt-4o-mini", api_key_env: str = "OPENAI_API_KEY",
                                       system_prompt: Optional[str] = None, temperature: float = 0.0,
-                                      max_retries: int = 3, max_workers: int = 16) -> List[Optional[int]]:
+                                      max_retries: int = 3, max_workers: int = 16, labels: Optional[List[str]] = None) -> List[Optional[int]]:
     """并行标注多个文本，每个文本使用一次 LLM 调用
     
     返回标签列表，失败的情况用 None 表示。调用者可以
     选择性地仅对失败的项进行回退。
+    
+    Args:
+        texts: 待标注的文本列表
+        model: LLM 模型名称
+        api_key_env: API 密钥环境变量名
+        system_prompt: 系统提示（可选）
+        temperature: 温度参数
+        max_retries: 最大重试次数
+        max_workers: 并行线程数
+        labels: 标签名称列表（用于生成提示）
     """
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -482,6 +540,7 @@ def annotate_with_llm_openai_parallel(texts: List[str], model: str = "gpt-4o-min
             system_prompt=system_prompt,
             temperature=temperature,
             max_retries=max_retries,
+            labels=labels,
         )
         return idx, label
 
@@ -515,6 +574,10 @@ def main():
     # 模型参数
     parser.add_argument("--model_name", type=str, default="distilbert-base-uncased", help="预训练模型名称")
     parser.add_argument("--max_length", type=int, default=128, help="最大序列长度")
+    # 数据集参数
+    parser.add_argument("--dataset", type=str, default="ag_news", 
+                        choices=["ag_news", "imdb", "amazon_polarity", "yelp_polarity"],
+                        help="选择数据集：ag_news, imdb, amazon_polarity, yelp_polarity")
     # 主动学习参数
     parser.add_argument("--seed_size", type=int, default=200, help="初始标注样本数量")
     parser.add_argument("--query_size", type=int, default=1000, help="每轮查询的样本数量")
@@ -549,13 +612,22 @@ def main():
     rng = np.random.default_rng(args.seed)
     device = torch.device(args.device)
 
-    # 加载 AG News 数据集并动态 tokenize
-    raw = load_dataset("ag_news")
-    num_labels = 4  # AG News 有 4 个类别
+    # 获取数据集配置
+    if args.dataset not in DATASET_CONFIGS:
+        raise ValueError(f"不支持的数据集: {args.dataset}。支持的数据集: {list(DATASET_CONFIGS.keys())}")
+    config = DATASET_CONFIGS[args.dataset]
+    num_labels = config["num_labels"]
+    
+    print(f"\n使用数据集: {args.dataset}")
+    print(f"标签数量: {num_labels}")
+    print(f"标签: {config['labels']}")
+
+    # 加载数据集并动态 tokenize
+    raw = load_dataset(config["dataset_name"])
     tokenizer = AutoTokenizer.from_pretrained(args.model_name, use_fast=True, cache_dir=args.cache_dir)
 
-    train_ds = HFDatasetWrapper(raw["train"], tokenizer, max_length=args.max_length)
-    test_ds  = HFDatasetWrapper(raw["test"],  tokenizer, max_length=args.max_length)
+    train_ds = HFDatasetWrapper(raw["train"], tokenizer, text_key=config["text_key"], max_length=args.max_length)
+    test_ds  = HFDatasetWrapper(raw["test"],  tokenizer, text_key=config["text_key"], max_length=args.max_length)
 
     # 初始化主动学习的标注/未标注池
     N = len(train_ds)
@@ -609,7 +681,7 @@ def main():
 
         # 使用 LLM 标注选中的样本（失败时回退到模型预测）
         print(f"Annotating {len(newly_selected)} selected samples...")
-        selected_texts = [raw["train"][i]["text"] for i in newly_selected]
+        selected_texts = [raw["train"][i][config["text_key"]] for i in newly_selected]
         llm_labels: List[int] = []
 
         # 在并行线程中执行每个文本的 LLM 调用
@@ -618,6 +690,7 @@ def main():
             model=args.llm_model,
             api_key_env=args.llm_api_key_env,
             max_workers=max(1, int(args.llm_workers)),
+            labels=config["labels"],
         )
         # 识别失败项并仅对它们进行回退
         failed_idx = [i for i, v in enumerate(parallel_labels) if v is None]
@@ -643,11 +716,12 @@ def main():
 
     print("\n=== Final Results ===")
 
-    # save to results/agnews
+    # 保存结果
     import json
     from datetime import datetime
-    os.makedirs("results/agnews/llm", exist_ok=True)
-    with open(f"results/agnews/llm/{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}", "w") as f:
+    result_dir = f"results/{config['result_dir']}/llm"
+    os.makedirs(result_dir, exist_ok=True)
+    with open(f"{result_dir}/{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}", "w") as f:
         json.dump(acc_list, f)
 
     print("Done.")

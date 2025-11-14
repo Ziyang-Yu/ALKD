@@ -53,9 +53,11 @@ def set_seed(seed: int):
     torch.cuda.manual_seed_all(seed)
 
 # ----------------------------
-# AG News 的概念定义
+# 数据集配置和概念定义
 # ----------------------------
-# 定义用于概念瓶颈模型的概念集合，这些概念描述了新闻文本的语义特征
+# 定义用于概念瓶颈模型的概念集合，这些概念描述了文本的语义特征
+
+# AG News 概念
 AGNEWS_CONCEPTS = [
     "mentions_person", "mentions_org", "mentions_location", "mentions_country",
     "mentions_company", "mentions_stock_or_market", "mentions_trade_or_deal", "mentions_economy",
@@ -64,8 +66,76 @@ AGNEWS_CONCEPTS = [
     "mentions_government_or_policy", "mentions_election_or_vote", "mentions_conflict_or_war", "mentions_disaster_or_crime",
     "mentions_health_or_medicine", "mentions_entertainment", "mentions_energy_or_environment", "mentions_space_or_weather",
 ]
-N_CONCEPTS = len(AGNEWS_CONCEPTS)  # 概念总数
-AGNEWS_LABELS = ["World", "Sports", "Business", "Sci/Tech"]  # AG News 的 4 个类别
+
+# IMDB 电影评论概念
+IMDB_CONCEPTS = [
+    "positive_emotion", "negative_emotion", "mentions_plot", "mentions_character",
+    "mentions_acting", "mentions_director", "mentions_cinematography", "mentions_music",
+    "mentions_dialogue", "mentions_ending", "mentions_genre", "mentions_action",
+    "mentions_romance", "mentions_comedy", "mentions_drama", "mentions_horror",
+    "mentions_suspense", "mentions_visual_effects", "mentions_setting", "mentions_costume",
+    "mentions_sequel", "mentions_remake", "mentions_award", "mentions_box_office",
+]
+
+# Amazon Reviews 概念
+AMAZON_CONCEPTS = [
+    "positive_sentiment", "negative_sentiment", "mentions_price", "mentions_quality",
+    "mentions_delivery", "mentions_packaging", "mentions_durability", "mentions_appearance",
+    "mentions_functionality", "mentions_ease_of_use", "mentions_value_for_money", "mentions_customer_service",
+    "mentions_size", "mentions_color", "mentions_material", "mentions_brand",
+    "mentions_warranty", "mentions_instructions", "mentions_assembly", "mentions_cleaning",
+    "mentions_storage", "mentions_portability", "mentions_safety", "mentions_compatibility",
+]
+
+# Yelp Review 概念
+YELP_CONCEPTS = [
+    "positive_experience", "negative_experience", "mentions_food_quality", "mentions_service",
+    "mentions_atmosphere", "mentions_price", "mentions_location", "mentions_wait_time",
+    "mentions_cleanliness", "mentions_portion_size", "mentions_presentation", "mentions_menu_variety",
+    "mentions_drinks", "mentions_dessert", "mentions_ambiance", "mentions_staff_attitude",
+    "mentions_reservation", "mentions_parking", "mentions_accessibility", "mentions_noise_level",
+    "mentions_special_occasion", "mentions_group_dining", "mentions_takeout", "mentions_delivery",
+]
+
+# 数据集配置字典
+DATASET_CONFIGS = {
+    "ag_news": {
+        "dataset_name": "ag_news",
+        "text_key": "text",
+        "label_key": "label",
+        "concepts": AGNEWS_CONCEPTS,
+        "labels": ["World", "Sports", "Business", "Sci/Tech"],
+        "num_labels": 4,
+        "result_dir": "agnews",
+    },
+    "imdb": {
+        "dataset_name": "imdb",
+        "text_key": "text",
+        "label_key": "label",
+        "concepts": IMDB_CONCEPTS,
+        "labels": ["negative", "positive"],
+        "num_labels": 2,
+        "result_dir": "imdb",
+    },
+    "amazon_polarity": {
+        "dataset_name": "amazon_polarity",
+        "text_key": "content",
+        "label_key": "label",
+        "concepts": AMAZON_CONCEPTS,
+        "labels": ["negative", "positive"],
+        "num_labels": 2,
+        "result_dir": "amazon",
+    },
+    "yelp_polarity": {
+        "dataset_name": "yelp_polarity",
+        "text_key": "text",
+        "label_key": "label",
+        "concepts": YELP_CONCEPTS,
+        "labels": ["negative", "positive"],
+        "num_labels": 2,
+        "result_dir": "yelp",
+    },
+}
 
 # ----------------------------
 # 概念瓶颈模型（CBM）分类头
@@ -354,12 +424,16 @@ def evaluate(encoder, head, loader, device) -> float:
 # ----------------------------
 # LLM 标注器
 # ----------------------------
-def _coerce_label_from_text(s: str) -> Optional[int]:
+def _coerce_label_from_text(s: str, num_labels: int = 4) -> Optional[int]:
     """
     从 LLM 响应字符串中提取单个标签 ID
     
-    接受数字类别 ID (0-3) 或 AGNEWS_LABELS 中的标签名称。
+    接受数字类别 ID 或标签名称。
     如果解析失败则返回 None。
+    
+    Args:
+        s: LLM 响应字符串
+        num_labels: 标签总数
     """
     if s is None: 
         return None
@@ -367,19 +441,23 @@ def _coerce_label_from_text(s: str) -> Optional[int]:
     # 首先尝试解析为整数
     try:
         v = int(s)
-        if 0 <= v < 4: 
+        if 0 <= v < num_labels: 
             return v
     except Exception: 
         pass
-    # 尝试查找标签名称
+    # 尝试查找标签名称（通用映射）
     low = s.lower()
-    name2id = {"world":0, "sports":1, "business":2, "sci/tech":3, "science":3, "tech":3}
+    name2id = {
+        "world": 0, "sports": 1, "business": 2, "sci/tech": 3, "science": 3, "tech": 3,
+        "negative": 0, "positive": 1, "neg": 0, "pos": 1,
+    }
     for k, v in name2id.items():
-        if k in low: 
+        if k in low and v < num_labels: 
             return v
     return None
 
-def annotate_labels_llm_parallel(texts: List[str], model="gpt-4o-mini", api_key_env="OPENAI_API_KEY", max_workers=4) -> List[Optional[int]]:
+def annotate_labels_llm_parallel(texts: List[str], model="gpt-4o-mini", api_key_env="OPENAI_API_KEY", 
+                                  max_workers=4, labels: Optional[List[str]] = None) -> List[Optional[int]]:
     """
     并行标注多个文本的标签，每个文本使用一次 LLM 调用
     
@@ -391,16 +469,21 @@ def annotate_labels_llm_parallel(texts: List[str], model="gpt-4o-mini", api_key_
         model: LLM 模型名称
         api_key_env: 存储 API 密钥的环境变量名
         max_workers: 并行线程数
+        labels: 标签名称列表（用于生成提示），如果为 None 则使用默认的 AG News 标签
     
     Returns:
         标签列表，失败项为 None
     """
     client = OpenAI(api_key=os.getenv(api_key_env))
 
-    sys_prompt = "You are a precise annotator for news classification."
+    if labels is None:
+        labels = ["World", "Sports", "Business", "Sci/Tech"]
+    
+    label_str = ", ".join([f"{i}={l}" for i, l in enumerate(labels)])
+    sys_prompt = "You are a precise annotator for text classification."
     user_tmpl = (
-        "Classify the text into one of: 0=World, 1=Sports, 2=Business, 3=Sci/Tech. "
-        "Return only a single integer (0,1,2,3). Text: {text}"
+        f"Classify the text into one of: {label_str}. "
+        f"Return only a single integer (0-{len(labels)-1}). Text: {{text}}"
     )
 
     def _one(t):
@@ -412,7 +495,7 @@ def annotate_labels_llm_parallel(texts: List[str], model="gpt-4o-mini", api_key_
             temperature=0.0,  # 使用确定性输出
         )
         content = resp.choices[0].message.content.strip()
-        return _coerce_label_from_text(content)
+        return _coerce_label_from_text(content, num_labels=len(labels))
 
     out = [None] * len(texts)
     # 使用线程池并行执行标注任务
@@ -537,6 +620,10 @@ def main():
     # 模型参数
     parser.add_argument("--model_name", type=str, default="distilbert-base-uncased", help="预训练模型名称")
     parser.add_argument("--max_length", type=int, default=128, help="最大序列长度")
+    # 数据集参数
+    parser.add_argument("--dataset", type=str, default="ag_news", 
+                        choices=["ag_news", "imdb", "amazon_polarity", "yelp_polarity"],
+                        help="选择数据集：ag_news, imdb, amazon_polarity, yelp_polarity")
     # 主动学习参数
     parser.add_argument("--seed_size", type=int, default=200, help="初始标注样本数量")
     parser.add_argument("--query_size", type=int, default=1000, help="每轮查询的样本数量")
@@ -570,11 +657,24 @@ def main():
     set_seed(args.seed)
     device = torch.device(args.device)
 
-    # 加载 AG News 数据集并动态 tokenize
-    raw = load_dataset("ag_news")
+    # 获取数据集配置
+    if args.dataset not in DATASET_CONFIGS:
+        raise ValueError(f"不支持的数据集: {args.dataset}。支持的数据集: {list(DATASET_CONFIGS.keys())}")
+    config = DATASET_CONFIGS[args.dataset]
+    concepts = config["concepts"]
+    num_labels = config["num_labels"]
+    n_concepts = len(concepts)
+    
+    print(f"\n使用数据集: {args.dataset}")
+    print(f"标签数量: {num_labels}")
+    print(f"概念数量: {n_concepts}")
+    print(f"标签: {config['labels']}")
+
+    # 加载数据集并动态 tokenize
+    raw = load_dataset(config["dataset_name"])
     tokenizer = AutoTokenizer.from_pretrained(args.model_name, use_fast=True, cache_dir=args.cache_dir)
-    train_ds = HFDatasetWrapper(raw["train"], tokenizer, max_length=args.max_length)
-    test_ds  = HFDatasetWrapper(raw["test"],  tokenizer, max_length=args.max_length)
+    train_ds = HFDatasetWrapper(raw["train"], tokenizer, text_key=config["text_key"], max_length=args.max_length)
+    test_ds  = HFDatasetWrapper(raw["test"],  tokenizer, text_key=config["text_key"], max_length=args.max_length)
 
     # 初始化主动学习的标注/未标注池
     pools = init_pools(len(train_ds), args.seed_size, args.seed)
@@ -588,7 +688,7 @@ def main():
     encoder.to(device)
 
     # CBM 分类头
-    head = CBMHead(hidden_size=enc_cfg.hidden_size, num_labels=4, n_concepts=N_CONCEPTS, hidden_task=256, concept_l1=args.concept_l1).to(device)
+    head = CBMHead(hidden_size=enc_cfg.hidden_size, num_labels=num_labels, n_concepts=n_concepts, hidden_task=256, concept_l1=args.concept_l1).to(device)
 
     # 数据加载器
     def make_loader(idxs, shuffle):
@@ -599,18 +699,18 @@ def main():
 
     # 为初始标注池标注概念，以便从第一轮开始应用概念损失
     if len(pools.labeled) > 0:
-        init_texts = [raw["train"][i]["text"] for i in pools.labeled]
+        init_texts = [raw["train"][i][config["text_key"]] for i in pools.labeled]
 
         init_concepts_raw = annotate_concepts_llm_parallel(
             init_texts,
-            AGNEWS_CONCEPTS,
+            concepts,
             model=args.llm_model,
             api_key_env=args.llm_api_key_env,
             max_workers=args.llm_workers,
         )
         # 对于失败的标注，回退到全零向量
         fail_count = sum(1 for cv in init_concepts_raw if cv is None)
-        init_concepts = [cv if cv is not None else [0] * N_CONCEPTS for cv in init_concepts_raw]
+        init_concepts = [cv if cv is not None else [0] * n_concepts for cv in init_concepts_raw]
         print(
             f"LLM annotated concepts for initial {len(pools.labeled)} samples, "
             f"with {fail_count} failures."
@@ -646,8 +746,9 @@ def main():
         newly_selected = [probe_idx[i] for i in rel]
 
         # 使用 LLM 标注选中的样本的标签
-        texts = [raw["train"][i]["text"] for i in newly_selected]
-        labels = annotate_labels_llm_parallel(texts, model=args.llm_model, api_key_env=args.llm_api_key_env, max_workers=args.llm_workers)
+        texts = [raw["train"][i][config["text_key"]] for i in newly_selected]
+        labels = annotate_labels_llm_parallel(texts, model=args.llm_model, api_key_env=args.llm_api_key_env, 
+                                              max_workers=args.llm_workers, labels=config["labels"])
         # 检查是否有标注失败的情况（当前实现要求所有标注成功）
         fallback_needed = [i for i, v in enumerate(labels) if v is None]
         if fallback_needed:
@@ -656,9 +757,9 @@ def main():
         labels = [int(x) for x in labels]
         
         # 使用 LLM 标注选中的样本的概念
-        concept_vecs = annotate_concepts_llm_parallel(texts, AGNEWS_CONCEPTS, model=args.llm_model, api_key_env=args.llm_api_key_env, max_workers=args.llm_workers)
+        concept_vecs = annotate_concepts_llm_parallel(texts, concepts, model=args.llm_model, api_key_env=args.llm_api_key_env, max_workers=args.llm_workers)
         # 对于失败的标注，回退到全零向量
-        concept_vecs = [cv if cv is not None else [0]*N_CONCEPTS for cv in concept_vecs]
+        concept_vecs = [cv if cv is not None else [0]*n_concepts for cv in concept_vecs]
         print(f"LLM annotated concepts for {len(newly_selected)} samples, with {sum(1 for x in concept_vecs if x is None)} failures.")
 
         # 存储覆盖标签和概念，以便后续训练使用这些标注
@@ -673,10 +774,11 @@ def main():
 
     print("\n=== Final Results ===")
 
-    # 保存结果到 results/agnews/llm_cbm
+    # 保存结果
     from datetime import datetime
-    os.makedirs("results/agnews/llm_cbm", exist_ok=True)
-    with open(f"results/agnews/llm_cbm/{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}", "w") as f:
+    result_dir = f"results/{config['result_dir']}/llm_cbm"
+    os.makedirs(result_dir, exist_ok=True)
+    with open(f"{result_dir}/{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}", "w") as f:
         json.dump(acc_list, f)
 
     print("Done.")
