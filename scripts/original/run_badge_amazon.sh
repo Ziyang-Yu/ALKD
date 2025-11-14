@@ -18,7 +18,7 @@ export CUBLAS_WORKSPACE_CONFIG=:4096:8
 
 git pull origin &&
 
-python -u run_badge_agnews.py \
+python -u run_badge.py \
     --dataset amazon_polarity \
     --batch_size 64 \
     --epochs 3 \
