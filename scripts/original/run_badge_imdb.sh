@@ -18,5 +18,11 @@ export CUBLAS_WORKSPACE_CONFIG=:4096:8
 
 git pull origin &&
 
-python -u run_badge_agnews.py --dataset imdb --batch_size 64 --epochs 3 --query_size 1000 --rounds 20 --device cuda
+python -u run_badge_agnews.py \
+    --dataset imdb \
+    --batch_size 64 \
+    --epochs 3 \
+    --query_size 1000 \
+    --rounds 20 \
+    --device cuda
 

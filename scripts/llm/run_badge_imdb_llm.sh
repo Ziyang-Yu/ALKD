@@ -18,7 +18,7 @@ export CUBLAS_WORKSPACE_CONFIG=:4096:8
 
 git pull origin &&
 
-python -u run_badge_agnews_llm.py \
+python -u run_badge_llm.py \
     --dataset imdb \
     --model_name FacebookAI/roberta-base \
     --max_length 128 \

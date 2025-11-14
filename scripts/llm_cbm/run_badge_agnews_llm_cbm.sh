@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=badge
+#SBATCH --job-name=badge_agnews_llm_cbm
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
@@ -18,4 +18,14 @@ export CUBLAS_WORKSPACE_CONFIG=:4096:8 &&
 
 git pull origin &&
 
-python -u run_badge_agnews_llm_cbm.py --model_name FacebookAI/roberta-base --max_length 128 --seed_size 50 --query_size 5 --rounds 100 --epochs 5 --batch_size 16 --lr 0.1 --alpha_concept 0.5
+python -u run_badge_llm_cbm.py \
+    --dataset ag_news \
+    --model_name FacebookAI/roberta-base \
+    --max_length 128 \
+    --seed_size 50 \
+    --query_size 5 \
+    --rounds 100 \
+    --epochs 5 \
+    --batch_size 16 \
+    --lr 0.1 \
+    --alpha_concept 1.0

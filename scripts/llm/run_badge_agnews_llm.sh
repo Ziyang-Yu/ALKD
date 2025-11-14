@@ -18,4 +18,13 @@ export CUBLAS_WORKSPACE_CONFIG=:4096:8
 
 git pull origin &&
 
-python -u run_badge_agnews_llm.py --model_name FacebookAI/roberta-base --max_length 128 --seed_size 50 --query_size 5 --rounds 100 --epochs 3 --batch_size 16 --lr 0.1 --dataset ag_news
+python -u run_badge_llm.py \
+    --dataset ag_news \
+    --model_name FacebookAI/roberta-base \
+    --max_length 128 \
+    --seed_size 50 \
+    --query_size 5 \
+    --rounds 100 \
+    --epochs 3 \
+    --batch_size 16 \
+    --lr 0.1
