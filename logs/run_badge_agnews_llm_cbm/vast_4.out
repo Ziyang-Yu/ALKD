@@ -175,3 +175,67 @@ LLM annotated concepts for 5 samples, with 0 failures.
 
 === Round 19/100 ===
 Test accuracy: 79.91%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.90s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 20/100 ===
+Test accuracy: 79.46%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.94s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 21/100 ===
+Test accuracy: 77.36%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.98s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 22/100 ===
+Test accuracy: 80.26%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 1.22s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 23/100 ===
+Test accuracy: 82.57%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.85s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 24/100 ===
+Test accuracy: 82.82%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.92s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 25/100 ===
+Test accuracy: 82.55%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 1.04s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 26/100 ===
+Test accuracy: 79.95%
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 3072)
+Selection took 0.96s.
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+LLM annotated concepts for 5 samples, with 0 failures.
+
+=== Round 27/100 ===
+Test accuracy: 82.54%
