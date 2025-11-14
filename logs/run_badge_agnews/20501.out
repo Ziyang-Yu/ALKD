@@ -1,0 +1,10 @@
+Already up to date.
+Latest git commit hash: 977ee1c30ee1f9da60c0bd8380972a9d4b50fc0a
+
+使用数据集: ag_news
+标签数量: 4
+标签: ['World', 'Sports', 'Business', 'Sci/Tech']
+Total train: 120000. Seed labeled: 200. Unlabeled pool: 119800.
+================================================================================
+Round 0/20 — Labeled 200 | Unlabeled 119800
+[Eval] Test accuracy: 30.92%

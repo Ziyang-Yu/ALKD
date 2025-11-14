@@ -1,0 +1,34 @@
+Already up to date.
+Latest git commit hash: 977ee1c30ee1f9da60c0bd8380972a9d4b50fc0a
+
+使用数据集: ag_news
+标签数量: 4
+标签: ['World', 'Sports', 'Business', 'Sci/Tech']
+Total train: 120000. Seed labeled: 50. Unlabeled pool: 119950.
+================================================================================
+Round 0/100 — Labeled 50 | Unlabeled 119950
+[Eval] Test accuracy: 39.66%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 4.38 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 1/100 — Labeled 55 | Unlabeled 119945
+[Eval] Test accuracy: 69.70%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 4.50 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 2/100 — Labeled 60 | Unlabeled 119940
+[Eval] Test accuracy: 43.75%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 4.42 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 3/100 — Labeled 65 | Unlabeled 119935
+[Eval] Test accuracy: 63.68%
