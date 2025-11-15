@@ -4,7 +4,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
-#SBATCH --mem=48G
+#SBATCH --mem=96G
 #SBATCH --time=12:00:00
 #SBATCH --output=logs/run_badge_imdb/%j.out
 #SBATCH --error=logs/run_badge_imdb/%j.err
