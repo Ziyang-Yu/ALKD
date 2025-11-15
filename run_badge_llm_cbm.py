@@ -751,7 +751,7 @@ def main():
         
         # 使用更大的 batch size 用于推理任务（H200 GPU 可以处理更大的 batch）
         t0 = time.time()
-        probe_loader = make_loader(probe_idx, shuffle=False, batch_size=512)
+        probe_loader = make_loader(probe_idx, shuffle=False, batch_size=2048)
         embs, map_idx = compute_gradient_embeddings(encoder, head, probe_loader, device)
         gradient_emb_time = time.time() - t0
         print(f"[Time] Gradient embedding computation: {gradient_emb_time:.2f}s")
