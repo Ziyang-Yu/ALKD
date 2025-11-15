@@ -20,7 +20,7 @@ git pull origin &&
 
 python -u run_badge.py \
     --dataset amazon_polarity \
-    --batch_size 64 \
+    --batch_size 16 \
     --epochs 3 \
     --query_size 1000 \
     --rounds 20 \

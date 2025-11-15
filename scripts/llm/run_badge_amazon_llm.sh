@@ -26,6 +26,6 @@ python -u run_badge_llm.py \
     --query_size 5 \
     --rounds 100 \
     --epochs 3 \
-    --batch_size 16 \
+    --batch_size 8 \
     --lr 0.1
 
