@@ -8,7 +8,6 @@
 #SBATCH --time=12:00:00
 #SBATCH --output=logs/run_badge_yelp_llm/%j.out
 #SBATCH --error=logs/run_badge_yelp_llm/%j.err
-#SBATCH --partition=h200
 
 set -euo pipefail
 
