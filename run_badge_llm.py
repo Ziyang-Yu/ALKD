@@ -223,11 +223,76 @@ def evaluate(encoder, classifier, loader, device) -> float:
     return correct / max(1, total)  # 返回准确率
 
 # --------------------------
+# 编码器特征预处理和缓存
+# --------------------------
+@torch.no_grad()
+def preprocess_encoder_features(encoder, dataset, device, cache_path: str, batch_size: int = 2048):
+    """
+    预处理并保存所有样本的编码器特征（CLS embeddings）
+    
+    Args:
+        encoder: 冻结的编码器模型
+        dataset: 数据集
+        device: 计算设备
+        cache_path: 缓存文件路径
+        batch_size: 批处理大小
+    
+    Returns:
+        特征矩阵 [N, H] 和索引列表
+    """
+    if os.path.exists(cache_path):
+        print(f"Loading preprocessed features from {cache_path}...")
+        data = np.load(cache_path, allow_pickle=True)
+        features = data['features']
+        indices = data['indices'].tolist()
+        print(f"Loaded {len(features)} preprocessed features.")
+        return features, indices
+    
+    print(f"Preprocessing encoder features for {len(dataset)} samples...")
+    encoder.eval()
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=2, collate_fn=collate_fn)
+    
+    all_features = []
+    all_indices = []
+    t0 = time.time()
+    
+    for batch_idx, batch in enumerate(loader):
+        batch = {k: v.to(device) for k, v in batch.items()}
+        encoder_outputs = encoder(
+            input_ids=batch['input_ids'],
+            attention_mask=batch['attention_mask']
+        )
+        h = encoder_outputs.last_hidden_state[:, 0]  # [B, H] CLS 嵌入
+        all_features.append(h.cpu().float().numpy())
+        
+        if "idx" in batch:
+            all_indices.extend(batch["idx"].cpu().tolist())
+        else:
+            # 如果没有 idx，使用批次索引
+            batch_start = batch_idx * batch_size
+            all_indices.extend(range(batch_start, batch_start + h.size(0)))
+        
+        if (batch_idx + 1) % 10 == 0:
+            elapsed = time.time() - t0
+            progress = (batch_idx + 1) / len(loader) * 100
+            print(f"  Progress: {progress:.1f}% ({batch_idx + 1}/{len(loader)} batches, {elapsed:.1f}s)")
+    
+    features = np.concatenate(all_features, axis=0)
+    
+    # 保存到文件
+    print(f"Saving preprocessed features to {cache_path}...")
+    os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+    np.savez(cache_path, features=features, indices=np.array(all_indices))
+    print(f"Saved {len(features)} features. Total time: {time.time() - t0:.2f}s")
+    
+    return features, all_indices
+
+# --------------------------
 # BADGE: 梯度嵌入计算
 # --------------------------
 
 @torch.no_grad()
-def badge_gradient_embeddings(encoder, classifier, loader, device, num_classes: int) -> Tuple[np.ndarray, List[int]]:
+def badge_gradient_embeddings(encoder, classifier, loader, device, num_classes: int, cached_features: Optional[Dict[int, np.ndarray]] = None) -> Tuple[np.ndarray, List[int]]:
     """
     计算 BADGE 梯度嵌入
     
@@ -240,37 +305,83 @@ def badge_gradient_embeddings(encoder, classifier, loader, device, num_classes: 
     - ⊗ 表示外积
     
     这个嵌入近似于损失函数对分类头参数的梯度，用于衡量样本的信息量。
+    
+    Args:
+        encoder: 编码器（如果 cached_features 为 None 则使用）
+        classifier: 分类器
+        loader: 数据加载器
+        device: 计算设备
+        num_classes: 类别数量
+        cached_features: 可选的预计算特征字典 {idx: feature_vector}
     """
-    encoder.eval()
     classifier.eval()
     embs = []
     map_idx = []
 
-    for batch in loader:
-        # 保留标签在批次结构中，但不用于计算嵌入
-        batch = {k: v.to(device) for k, v in batch.items()}
+    if cached_features is not None:
+        # 使用预计算的特征
+        for batch in loader:
+            batch = {k: v.to(device) for k, v in batch.items()}
+            
+            # 获取批次索引（HFDatasetWrapper 总是包含 idx）
+            if "idx" in batch:
+                batch_indices = batch["idx"].cpu().tolist()
+                # 从缓存中获取特征
+                h_list = [cached_features[idx] for idx in batch_indices]
+                h = torch.tensor(np.stack(h_list), dtype=torch.float32).to(device)  # [B, H]
+            else:
+                # 如果没有 idx，回退到编码器计算
+                encoder.eval()
+                encoder_outputs = encoder(
+                    input_ids=batch['input_ids'],
+                    attention_mask=batch['attention_mask']
+                )
+                h = encoder_outputs.last_hidden_state[:, 0]  # [B, H] CLS 嵌入
+                batch_indices = [None] * h.size(0)
+            
+            logits = classifier(h)                            # [B, C] 分类 logits
+            probs = torch.softmax(logits, dim=-1)            # [B, C] 类别概率
+            yhat = probs.argmax(dim=-1)                      # [B] 预测类别
+            onehot = torch.zeros_like(probs)
+            onehot[torch.arange(probs.size(0)), yhat] = 1.0  # [B, C] one-hot 向量
+            delta = probs - onehot                           # [B, C] 概率与 one-hot 的差
 
-        encoder_outputs = encoder(
-            input_ids=batch['input_ids'],
-            attention_mask=batch['attention_mask']
-        )
-        h = encoder_outputs.last_hidden_state[:, 0]      # [B, H] CLS 嵌入
-        logits = classifier(h)                            # [B, C] 分类 logits
+            # 计算梯度嵌入：外积后展平
+            g = (delta.unsqueeze(-1) * h.unsqueeze(1)).reshape(probs.size(0), -1)  # [B, C*H]
+            embs.append(g.cpu().float().numpy())
 
-        probs = torch.softmax(logits, dim=-1)            # [B, C] 类别概率
-        yhat = probs.argmax(dim=-1)                      # [B] 预测类别
-        onehot = torch.zeros_like(probs)
-        onehot[torch.arange(probs.size(0)), yhat] = 1.0  # [B, C] one-hot 向量
-        delta = probs - onehot                           # [B, C] 概率与 one-hot 的差
+            if "idx" in batch:
+                map_idx.extend(batch["idx"].cpu().tolist())
+            else:
+                map_idx.extend(batch_indices)
+    else:
+        # 原始方法：通过编码器计算特征
+        encoder.eval()
+        for batch in loader:
+            # 保留标签在批次结构中，但不用于计算嵌入
+            batch = {k: v.to(device) for k, v in batch.items()}
 
-        # 计算梯度嵌入：外积后展平
-        g = (delta.unsqueeze(-1) * h.unsqueeze(1)).reshape(probs.size(0), -1)  # [B, C*H]
-        embs.append(g.cpu().float().numpy())
+            encoder_outputs = encoder(
+                input_ids=batch['input_ids'],
+                attention_mask=batch['attention_mask']
+            )
+            h = encoder_outputs.last_hidden_state[:, 0]      # [B, H] CLS 嵌入
+            logits = classifier(h)                            # [B, C] 分类 logits
 
-        if "idx" in batch:
-            map_idx.extend(batch["idx"].cpu().tolist())
-        else:
-            map_idx.extend([None] * probs.size(0))
+            probs = torch.softmax(logits, dim=-1)            # [B, C] 类别概率
+            yhat = probs.argmax(dim=-1)                      # [B] 预测类别
+            onehot = torch.zeros_like(probs)
+            onehot[torch.arange(probs.size(0)), yhat] = 1.0  # [B, C] one-hot 向量
+            delta = probs - onehot                           # [B, C] 概率与 one-hot 的差
+
+            # 计算梯度嵌入：外积后展平
+            g = (delta.unsqueeze(-1) * h.unsqueeze(1)).reshape(probs.size(0), -1)  # [B, C*H]
+            embs.append(g.cpu().float().numpy())
+
+            if "idx" in batch:
+                map_idx.extend(batch["idx"].cpu().tolist())
+            else:
+                map_idx.extend([None] * probs.size(0))
 
     if len(embs) == 0:
         return np.zeros((0, 1), dtype=np.float32), []
@@ -643,6 +754,21 @@ def main():
 
     classifier = Classifier(hidden_size=encoder_config.hidden_size, num_labels=num_labels).to(device)
 
+    # 预处理并缓存编码器特征
+    cache_dir = f"cache/{args.dataset}/{args.model_name.replace('/', '_')}"
+    cache_path = f"{cache_dir}/encoder_features.npz"
+    print(f"\n=== Preprocessing Encoder Features ===")
+    t0 = time.time()
+    features_array, feature_indices = preprocess_encoder_features(
+        encoder, train_ds, device, cache_path, batch_size=2048
+    )
+    preprocessing_time = time.time() - t0
+    print(f"[Time] Total preprocessing time: {preprocessing_time:.2f}s")
+    
+    # 创建特征字典以便快速查找
+    cached_features_dict = {idx: features_array[i] for i, idx in enumerate(feature_indices)}
+    print(f"Created feature cache dictionary with {len(cached_features_dict)} entries.")
+
     test_loader = DataLoader(test_ds, batch_size=128, shuffle=False, collate_fn=collate_fn)
 
     acc_list = []
@@ -664,8 +790,10 @@ def main():
             break
 
         # BADGE 选择：计算梯度嵌入，然后使用 k-means++ 选择
-        pool_loader = make_loader(train_ds, pools.unlabeled, batch_size=128, shuffle=False)
-        embs, _ = badge_gradient_embeddings(encoder, classifier, pool_loader, device, num_classes=num_labels)
+        # 使用更大的 batch size 用于推理任务（H200 GPU 可以处理更大的 batch）
+        # 使用预计算的编码器特征，避免重复通过编码器
+        pool_loader = make_loader(train_ds, pools.unlabeled, batch_size=2048, shuffle=False)
+        embs, _ = badge_gradient_embeddings(encoder, classifier, pool_loader, device, num_classes=num_labels, cached_features=cached_features_dict)
         n_pool = embs.shape[0]
         k = min(args.query_size, n_pool)
         if k == 0:
