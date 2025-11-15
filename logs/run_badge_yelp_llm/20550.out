@@ -296,3 +296,11 @@ LLM annotations received (with selective fallback if needed).
 ================================================================================
 Round 36/100 — Labeled 230 | Unlabeled 559770
 [Eval] Test accuracy: 83.54%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 8.74 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 37/100 — Labeled 235 | Unlabeled 559765
+[Eval] Test accuracy: 84.22%
