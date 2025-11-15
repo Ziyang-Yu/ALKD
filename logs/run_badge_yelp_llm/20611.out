@@ -1,0 +1,16 @@
+Already up to date.
+Latest git commit hash: e57b57611018843682876b0d49d9c72143713b3a
+
+使用数据集: yelp_polarity
+标签数量: 2
+标签: ['negative', 'positive']
+Total train: 560000. Seed labeled: 50. Unlabeled pool: 559950.
+
+=== Preprocessing Encoder Features ===
+Preprocessing encoder features for 560000 samples...
+  Progress: 3.6% (10/274 batches, 11.9s)
+  Progress: 7.3% (20/274 batches, 21.7s)
+  Progress: 10.9% (30/274 batches, 31.6s)
+  Progress: 14.6% (40/274 batches, 41.5s)
+  Progress: 18.2% (50/274 batches, 51.4s)
+  Progress: 21.9% (60/274 batches, 61.3s)

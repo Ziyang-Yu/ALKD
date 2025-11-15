@@ -1,0 +1,26 @@
+Some weights of RobertaModel were not initialized from the model checkpoint at FacebookAI/roberta-base and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Traceback (most recent call last):
+  File "/local/scratch/zyu273/alkd/run_badge_llm_cbm.py", line 959, in <module>
+    main()
+  File "/local/scratch/zyu273/alkd/run_badge_llm_cbm.py", line 900, in main
+    labels = annotate_labels_llm_parallel(texts, model=args.llm_model, api_key_env=args.llm_api_key_env,
+  File "/local/scratch/zyu273/alkd/run_badge_llm_cbm.py", line 602, in annotate_labels_llm_parallel
+    out[futs[f]] = f.result()
+  File "/local/scratch/zyu273/alkd/env/lib/python3.10/concurrent/futures/_base.py", line 451, in result
+    return self.__get_result()
+  File "/local/scratch/zyu273/alkd/env/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+  File "/local/scratch/zyu273/alkd/env/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/local/scratch/zyu273/alkd/run_badge_llm_cbm.py", line 589, in _one
+    resp = client.chat.completions.create(
+  File "/local/scratch/zyu273/alkd/env/lib/python3.10/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/local/scratch/zyu273/alkd/env/lib/python3.10/site-packages/openai/resources/chat/completions/completions.py", line 1156, in create
+    return self._post(
+  File "/local/scratch/zyu273/alkd/env/lib/python3.10/site-packages/openai/_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/local/scratch/zyu273/alkd/env/lib/python3.10/site-packages/openai/_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
