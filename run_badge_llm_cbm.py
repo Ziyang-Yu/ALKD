@@ -691,10 +691,12 @@ def main():
     head = CBMHead(hidden_size=enc_cfg.hidden_size, num_labels=num_labels, hidden_task=256, concept_l1=args.concept_l1, n_concepts=n_concepts).to(device)
 
     # 数据加载器
-    def make_loader(idxs, shuffle):
+    def make_loader(idxs, shuffle, batch_size=None):
         """为数据集的子集创建 DataLoader"""
         subset = torch.utils.data.Subset(train_ds, idxs)
-        return DataLoader(subset, batch_size=args.batch_size, shuffle=shuffle, num_workers=2, collate_fn=collate_fn)
+        if batch_size is None:
+            batch_size = args.batch_size
+        return DataLoader(subset, batch_size=batch_size, shuffle=shuffle, num_workers=2, collate_fn=collate_fn)
     test_loader = DataLoader(test_ds, batch_size=256, shuffle=False, num_workers=2, collate_fn=collate_fn)
 
     # 为初始标注池标注概念，以便从第一轮开始应用概念损失
@@ -719,36 +721,61 @@ def main():
 
     acc_list = []
 
+    print(f"Begin Iterative Annotation...")
+
     # 主动学习主循环
     for r in range(args.rounds):
+        round_start_time = time.time()
         print(f"\n=== Round {r}/{args.rounds} ===")
+        
         # 在当前标注集上训练分类器，然后评估
+        t0 = time.time()
         train_loader = make_loader(pools.labeled, shuffle=True)
         train_one_round(encoder, head, train_loader, device, lr=args.lr, epochs=args.epochs, alpha_concept=args.alpha_concept)
+        train_time = time.time() - t0
+        print(f"[Time] Training: {train_time:.2f}s")
+        
+        t0 = time.time()
         acc = evaluate(encoder, head, test_loader, device)
+        eval_time = time.time() - t0
         print(f"Test accuracy: {acc*100:.2f}%")
+        print(f"[Time] Evaluation: {eval_time:.2f}s")
         acc_list.append(acc*100)
 
         # BADGE 选择：在未标注池的随机子集上计算梯度嵌入（可选，用于加速）
+        t0 = time.time()
         probe_count = min(20000, len(pools.unlabeled))
         probe_idx = np.random.choice(pools.unlabeled, size=probe_count, replace=False).tolist() if probe_count > 0 else []
-        probe_loader = make_loader(probe_idx, shuffle=False)
+        probe_selection_time = time.time() - t0
+        print(f"[Time] Probe selection ({probe_count} samples): {probe_selection_time:.2f}s")
+        
+        # 使用更大的 batch size 用于推理任务（H200 GPU 可以处理更大的 batch）
+        t0 = time.time()
+        probe_loader = make_loader(probe_idx, shuffle=False, batch_size=512)
         embs, map_idx = compute_gradient_embeddings(encoder, head, probe_loader, device)
+        gradient_emb_time = time.time() - t0
+        print(f"[Time] Gradient embedding computation: {gradient_emb_time:.2f}s")
+        
         if embs.shape[0] == 0: 
             break
         k = min(args.query_size, embs.shape[0])
 
         print(f"Selecting {k} via BADGE...")
         print(f"Gradient embedding shape: {embs.shape}")
-        t = time.time()
+        t0 = time.time()
         rel = kmeanspp_select_sklearn(embs, k, np.random.default_rng(args.seed + r))
-        print(f"Selection took {time.time()-t:.2f}s.")
+        kmeans_time = time.time() - t0
+        print(f"[Time] k-means++ selection: {kmeans_time:.2f}s")
         newly_selected = [probe_idx[i] for i in rel]
 
         # 使用 LLM 标注选中的样本的标签
+        t0 = time.time()
         texts = [raw["train"][i][config["text_key"]] for i in newly_selected]
         labels = annotate_labels_llm_parallel(texts, model=args.llm_model, api_key_env=args.llm_api_key_env, 
                                               max_workers=args.llm_workers, labels=config["labels"])
+        llm_label_time = time.time() - t0
+        print(f"[Time] LLM label annotation ({len(newly_selected)} samples): {llm_label_time:.2f}s")
+        
         # 检查是否有标注失败的情况（当前实现要求所有标注成功）
         fallback_needed = [i for i, v in enumerate(labels) if v is None]
         if fallback_needed:
@@ -757,20 +784,39 @@ def main():
         labels = [int(x) for x in labels]
         
         # 使用 LLM 标注选中的样本的概念
+        t0 = time.time()
         concept_vecs = annotate_concepts_llm_parallel(texts, concepts, model=args.llm_model, api_key_env=args.llm_api_key_env, max_workers=args.llm_workers)
+        llm_concept_time = time.time() - t0
+        print(f"[Time] LLM concept annotation ({len(newly_selected)} samples): {llm_concept_time:.2f}s")
+        
         # 对于失败的标注，回退到全零向量
         concept_vecs = [cv if cv is not None else [0]*n_concepts for cv in concept_vecs]
         print(f"LLM annotated concepts for {len(newly_selected)} samples, with {sum(1 for x in concept_vecs if x is None)} failures.")
 
         # 存储覆盖标签和概念，以便后续训练使用这些标注
+        t0 = time.time()
         train_ds.set_many_label_overrides(newly_selected, labels)
         train_ds.set_many_concept_overrides(newly_selected, concept_vecs)
+        data_update_time = time.time() - t0
+        print(f"[Time] Dataset update: {data_update_time:.2f}s")
 
         # 将选中的样本从未标注池移到标注池
+        t0 = time.time()
         pools.labeled.extend(newly_selected)
         unl = set(pools.unlabeled)
         unl.difference_update(newly_selected)
         pools.unlabeled = list(unl)
+        pool_update_time = time.time() - t0
+        print(f"[Time] Pool update: {pool_update_time:.2f}s")
+        
+        round_total_time = time.time() - round_start_time
+        print(f"[Time] Round {r} total: {round_total_time:.2f}s")
+        print(f"[Time] Breakdown - Train: {train_time:.2f}s ({train_time/round_total_time*100:.1f}%), "
+              f"Eval: {eval_time:.2f}s ({eval_time/round_total_time*100:.1f}%), "
+              f"Gradient: {gradient_emb_time:.2f}s ({gradient_emb_time/round_total_time*100:.1f}%), "
+              f"k-means: {kmeans_time:.2f}s ({kmeans_time/round_total_time*100:.1f}%), "
+              f"LLM labels: {llm_label_time:.2f}s ({llm_label_time/round_total_time*100:.1f}%), "
+              f"LLM concepts: {llm_concept_time:.2f}s ({llm_concept_time/round_total_time*100:.1f}%)")
 
     print("\n=== Final Results ===")
 
