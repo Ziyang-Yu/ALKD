@@ -8,7 +8,7 @@
 #SBATCH --time=12:00:00
 #SBATCH --output=logs/run_badge_yelp_llm_cbm/%j.out
 #SBATCH --error=logs/run_badge_yelp_llm_cbm/%j.err
-#SBATCH --partition=jptr-c4-m32
+#SBATCH --partition=c64-m512
 
 set -euo pipefail
 
