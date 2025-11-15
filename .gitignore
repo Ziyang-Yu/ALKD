@@ -5,3 +5,4 @@ env/
 hf_cache/
 .env
 __pycache__/
+cache/

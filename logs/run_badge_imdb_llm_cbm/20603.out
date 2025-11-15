@@ -1,0 +1,602 @@
+Already up to date.
+====================
+Arguments:
+====================
+model_name: FacebookAI/roberta-base
+max_length: 128
+dataset: imdb
+seed_size: 50
+query_size: 5
+rounds: 100
+epochs: 5
+batch_size: 16
+lr: 0.1
+alpha_concept: 1.0
+concept_l1: 0.0001
+device: cuda
+seed: 42
+cache_dir: None
+llm_model: gpt-4o-mini
+llm_api_key_env: OPENAI_API_KEY
+llm_workers: 8
+Latest git commit hash: be1350da6ee0fa9d1e1dd112f7262f58d16241df
+
+使用数据集: imdb
+标签数量: 2
+概念数量: 24
+标签: ['negative', 'positive']
+Seed labeled=50, unlabeled=24950
+
+=== Preprocessing Encoder Features ===
+Preprocessing encoder features for 25000 samples...
+  Progress: 76.9% (10/13 batches, 15.0s)
+Saving preprocessed features to cache/imdb/FacebookAI_roberta-base/encoder_features.npz...
+Saved 25000 features. Total time: 18.24s
+[Time] Total preprocessing time: 18.24s
+Created feature cache dictionary with 25000 entries.
+LLM annotated concepts for initial 50 samples, with 0 failures.
+Begin Iterative Annotation...
+
+=== Round 0/100 ===
+[Time] Training: 1.52s
+Test accuracy: 65.51%
+[Time] Evaluation: 16.33s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.22s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.24s
+[Time] LLM label annotation (5 samples): 2.55s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.25s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 0 total: 37.12s
+[Time] Breakdown - Train: 1.52s (4.1%), Eval: 16.33s (44.0%), Gradient: 14.22s (38.3%), k-means: 0.24s (0.6%), LLM labels: 2.55s (6.9%), LLM concepts: 2.25s (6.1%)
+
+=== Round 1/100 ===
+[Time] Training: 1.02s
+Test accuracy: 67.82%
+[Time] Evaluation: 16.23s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.44s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.26s
+[Time] LLM label annotation (5 samples): 0.59s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 1.74s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 1 total: 34.29s
+[Time] Breakdown - Train: 1.02s (3.0%), Eval: 16.23s (47.3%), Gradient: 14.44s (42.1%), k-means: 0.26s (0.8%), LLM labels: 0.59s (1.7%), LLM concepts: 1.74s (5.1%)
+
+=== Round 2/100 ===
+[Time] Training: 1.18s
+Test accuracy: 73.26%
+[Time] Evaluation: 16.40s
+[Time] Probe selection (20000 samples): 0.01s
+[Time] Gradient embedding computation (using cached features): 14.32s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.25s
+[Time] LLM label annotation (5 samples): 2.12s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.60s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.01s
+[Time] Round 2 total: 36.90s
+[Time] Breakdown - Train: 1.18s (3.2%), Eval: 16.40s (44.5%), Gradient: 14.32s (38.8%), k-means: 0.25s (0.7%), LLM labels: 2.12s (5.7%), LLM concepts: 2.60s (7.0%)
+
+=== Round 3/100 ===
+[Time] Training: 1.25s
+Test accuracy: 68.80%
+[Time] Evaluation: 16.15s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.46s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.24s
+[Time] LLM label annotation (5 samples): 0.93s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.49s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 3 total: 35.53s
+[Time] Breakdown - Train: 1.25s (3.5%), Eval: 16.15s (45.5%), Gradient: 14.46s (40.7%), k-means: 0.24s (0.7%), LLM labels: 0.93s (2.6%), LLM concepts: 2.49s (7.0%)
+
+=== Round 4/100 ===
+[Time] Training: 1.23s
+Test accuracy: 72.30%
+[Time] Evaluation: 16.58s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.46s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.24s
+[Time] LLM label annotation (5 samples): 0.69s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.61s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.01s
+[Time] Round 4 total: 35.83s
+[Time] Breakdown - Train: 1.23s (3.4%), Eval: 16.58s (46.3%), Gradient: 14.46s (40.4%), k-means: 0.24s (0.7%), LLM labels: 0.69s (1.9%), LLM concepts: 2.61s (7.3%)
+
+=== Round 5/100 ===
+[Time] Training: 1.23s
+Test accuracy: 73.24%
+[Time] Evaluation: 16.56s
+[Time] Probe selection (20000 samples): 0.01s
+[Time] Gradient embedding computation (using cached features): 14.57s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.25s
+[Time] LLM label annotation (5 samples): 0.79s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.49s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 5 total: 35.89s
+[Time] Breakdown - Train: 1.23s (3.4%), Eval: 16.56s (46.1%), Gradient: 14.57s (40.6%), k-means: 0.25s (0.7%), LLM labels: 0.79s (2.2%), LLM concepts: 2.49s (6.9%)
+
+=== Round 6/100 ===
+[Time] Training: 1.26s
+Test accuracy: 73.90%
+[Time] Evaluation: 16.26s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 17.03s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.29s
+[Time] LLM label annotation (5 samples): 0.55s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.02s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 6 total: 37.41s
+[Time] Breakdown - Train: 1.26s (3.4%), Eval: 16.26s (43.5%), Gradient: 17.03s (45.5%), k-means: 0.29s (0.8%), LLM labels: 0.55s (1.5%), LLM concepts: 2.02s (5.4%)
+
+=== Round 7/100 ===
+[Time] Training: 1.73s
+Test accuracy: 72.39%
+[Time] Evaluation: 21.79s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 19.87s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.30s
+[Time] LLM label annotation (5 samples): 0.84s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.13s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 7 total: 46.68s
+[Time] Breakdown - Train: 1.73s (3.7%), Eval: 21.79s (46.7%), Gradient: 19.87s (42.6%), k-means: 0.30s (0.6%), LLM labels: 0.84s (1.8%), LLM concepts: 2.13s (4.6%)
+
+=== Round 8/100 ===
+[Time] Training: 1.76s
+Test accuracy: 72.92%
+[Time] Evaluation: 22.49s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 19.62s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.29s
+[Time] LLM label annotation (5 samples): 0.82s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.10s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 8 total: 47.09s
+[Time] Breakdown - Train: 1.76s (3.7%), Eval: 22.49s (47.8%), Gradient: 19.62s (41.7%), k-means: 0.29s (0.6%), LLM labels: 0.82s (1.7%), LLM concepts: 2.10s (4.5%)
+
+=== Round 9/100 ===
+[Time] Training: 1.72s
+Test accuracy: 72.28%
+[Time] Evaluation: 22.69s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 19.63s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.39s
+[Time] LLM label annotation (5 samples): 0.74s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.52s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 9 total: 47.69s
+[Time] Breakdown - Train: 1.72s (3.6%), Eval: 22.69s (47.6%), Gradient: 19.63s (41.2%), k-means: 0.39s (0.8%), LLM labels: 0.74s (1.5%), LLM concepts: 2.52s (5.3%)
+
+=== Round 10/100 ===
+[Time] Training: 1.90s
+Test accuracy: 72.63%
+[Time] Evaluation: 22.30s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 19.42s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.33s
+[Time] LLM label annotation (5 samples): 2.61s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.15s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.04s
+[Time] Round 10 total: 48.75s
+[Time] Breakdown - Train: 1.90s (3.9%), Eval: 22.30s (45.7%), Gradient: 19.42s (39.8%), k-means: 0.33s (0.7%), LLM labels: 2.61s (5.4%), LLM concepts: 2.15s (4.4%)
+
+=== Round 11/100 ===
+[Time] Training: 1.94s
+Test accuracy: 72.36%
+[Time] Evaluation: 21.86s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 19.60s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.28s
+[Time] LLM label annotation (5 samples): 0.51s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.11s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.01s
+[Time] Round 11 total: 46.32s
+[Time] Breakdown - Train: 1.94s (4.2%), Eval: 21.86s (47.2%), Gradient: 19.60s (42.3%), k-means: 0.28s (0.6%), LLM labels: 0.51s (1.1%), LLM concepts: 2.11s (4.6%)
+
+=== Round 12/100 ===
+[Time] Training: 1.94s
+Test accuracy: 72.85%
+[Time] Evaluation: 22.40s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 19.64s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.32s
+[Time] LLM label annotation (5 samples): 1.12s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 4.04s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.01s
+[Time] Round 12 total: 49.48s
+[Time] Breakdown - Train: 1.94s (3.9%), Eval: 22.40s (45.3%), Gradient: 19.64s (39.7%), k-means: 0.32s (0.7%), LLM labels: 1.12s (2.3%), LLM concepts: 4.04s (8.2%)
+
+=== Round 13/100 ===
+[Time] Training: 2.01s
+Test accuracy: 71.63%
+[Time] Evaluation: 22.97s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 18.12s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.29s
+[Time] LLM label annotation (5 samples): 0.50s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 3.39s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 13 total: 47.29s
+[Time] Breakdown - Train: 2.01s (4.3%), Eval: 22.97s (48.6%), Gradient: 18.12s (38.3%), k-means: 0.29s (0.6%), LLM labels: 0.50s (1.1%), LLM concepts: 3.39s (7.2%)
+
+=== Round 14/100 ===
+[Time] Training: 1.90s
+Test accuracy: 73.46%
+[Time] Evaluation: 23.10s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 19.45s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.30s
+[Time] LLM label annotation (5 samples): 0.80s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.38s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 14 total: 47.94s
+[Time] Breakdown - Train: 1.90s (4.0%), Eval: 23.10s (48.2%), Gradient: 19.45s (40.6%), k-means: 0.30s (0.6%), LLM labels: 0.80s (1.7%), LLM concepts: 2.38s (5.0%)
+
+=== Round 15/100 ===
+[Time] Training: 2.18s
+Test accuracy: 72.86%
+[Time] Evaluation: 22.73s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 20.25s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.34s
+[Time] LLM label annotation (5 samples): 0.76s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 3.44s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.01s
+[Time] Round 15 total: 49.71s
+[Time] Breakdown - Train: 2.18s (4.4%), Eval: 22.73s (45.7%), Gradient: 20.25s (40.7%), k-means: 0.34s (0.7%), LLM labels: 0.76s (1.5%), LLM concepts: 3.44s (6.9%)
+
+=== Round 16/100 ===
+[Time] Training: 2.36s
+Test accuracy: 74.76%
+[Time] Evaluation: 22.27s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 19.75s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.30s
+[Time] LLM label annotation (5 samples): 0.66s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.11s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 16 total: 47.44s
+[Time] Breakdown - Train: 2.36s (5.0%), Eval: 22.27s (46.9%), Gradient: 19.75s (41.6%), k-means: 0.30s (0.6%), LLM labels: 0.66s (1.4%), LLM concepts: 2.11s (4.4%)
+
+=== Round 17/100 ===
+[Time] Training: 2.13s
+Test accuracy: 73.92%
+[Time] Evaluation: 22.10s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 19.68s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.33s
+[Time] LLM label annotation (5 samples): 4.70s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 3.04s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 17 total: 51.99s
+[Time] Breakdown - Train: 2.13s (4.1%), Eval: 22.10s (42.5%), Gradient: 19.68s (37.9%), k-means: 0.33s (0.6%), LLM labels: 4.70s (9.0%), LLM concepts: 3.04s (5.8%)
+
+=== Round 18/100 ===
+[Time] Training: 2.14s
+Test accuracy: 74.98%
+[Time] Evaluation: 22.55s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 16.81s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.26s
+[Time] LLM label annotation (5 samples): 0.86s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 3.32s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 18 total: 45.94s
+[Time] Breakdown - Train: 2.14s (4.7%), Eval: 22.55s (49.1%), Gradient: 16.81s (36.6%), k-means: 0.26s (0.6%), LLM labels: 0.86s (1.9%), LLM concepts: 3.32s (7.2%)
+
+=== Round 19/100 ===
+[Time] Training: 1.68s
+Test accuracy: 75.65%
+[Time] Evaluation: 16.87s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.67s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.26s
+[Time] LLM label annotation (5 samples): 0.57s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.24s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 19 total: 36.30s
+[Time] Breakdown - Train: 1.68s (4.6%), Eval: 16.87s (46.5%), Gradient: 14.67s (40.4%), k-means: 0.26s (0.7%), LLM labels: 0.57s (1.6%), LLM concepts: 2.24s (6.2%)
+
+=== Round 20/100 ===
+[Time] Training: 1.86s
+Test accuracy: 75.33%
+[Time] Evaluation: 17.02s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.48s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.25s
+[Time] LLM label annotation (5 samples): 0.41s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.78s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 20 total: 36.80s
+[Time] Breakdown - Train: 1.86s (5.0%), Eval: 17.02s (46.2%), Gradient: 14.48s (39.4%), k-means: 0.25s (0.7%), LLM labels: 0.41s (1.1%), LLM concepts: 2.78s (7.6%)
+
+=== Round 21/100 ===
+[Time] Training: 1.91s
+Test accuracy: 76.83%
+[Time] Evaluation: 16.70s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.56s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.25s
+[Time] LLM label annotation (5 samples): 0.49s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 3.35s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.01s
+[Time] Round 21 total: 37.27s
+[Time] Breakdown - Train: 1.91s (5.1%), Eval: 16.70s (44.8%), Gradient: 14.56s (39.1%), k-means: 0.25s (0.7%), LLM labels: 0.49s (1.3%), LLM concepts: 3.35s (9.0%)
+
+=== Round 22/100 ===
+[Time] Training: 1.84s
+Test accuracy: 76.65%
+[Time] Evaluation: 16.46s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.51s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.24s
+[Time] LLM label annotation (5 samples): 0.60s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.05s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 22 total: 35.70s
+[Time] Breakdown - Train: 1.84s (5.2%), Eval: 16.46s (46.1%), Gradient: 14.51s (40.6%), k-means: 0.24s (0.7%), LLM labels: 0.60s (1.7%), LLM concepts: 2.05s (5.7%)
+
+=== Round 23/100 ===
+[Time] Training: 1.95s
+Test accuracy: 76.28%
+[Time] Evaluation: 16.46s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.55s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.26s
+[Time] LLM label annotation (5 samples): 2.29s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.15s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.01s
+[Time] Round 23 total: 37.66s
+[Time] Breakdown - Train: 1.95s (5.2%), Eval: 16.46s (43.7%), Gradient: 14.55s (38.6%), k-means: 0.26s (0.7%), LLM labels: 2.29s (6.1%), LLM concepts: 2.15s (5.7%)
+
+=== Round 24/100 ===
+[Time] Training: 1.81s
+Test accuracy: 75.77%
+[Time] Evaluation: 16.59s
+[Time] Probe selection (20000 samples): 0.01s
+[Time] Gradient embedding computation (using cached features): 14.59s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.25s
+[Time] LLM label annotation (5 samples): 0.64s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.39s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.01s
+[Time] Round 24 total: 36.28s
+[Time] Breakdown - Train: 1.81s (5.0%), Eval: 16.59s (45.7%), Gradient: 14.59s (40.2%), k-means: 0.25s (0.7%), LLM labels: 0.64s (1.8%), LLM concepts: 2.39s (6.6%)
+
+=== Round 25/100 ===
+[Time] Training: 2.09s
+Test accuracy: 76.42%
+[Time] Evaluation: 16.57s
+[Time] Probe selection (20000 samples): 0.01s
+[Time] Gradient embedding computation (using cached features): 14.69s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.25s
+[Time] LLM label annotation (5 samples): 0.76s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.19s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.01s
+[Time] Round 25 total: 36.57s
+[Time] Breakdown - Train: 2.09s (5.7%), Eval: 16.57s (45.3%), Gradient: 14.69s (40.2%), k-means: 0.25s (0.7%), LLM labels: 0.76s (2.1%), LLM concepts: 2.19s (6.0%)
+
+=== Round 26/100 ===
+[Time] Training: 2.41s
+Test accuracy: 76.58%
+[Time] Evaluation: 16.53s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.37s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.26s
+[Time] LLM label annotation (5 samples): 0.95s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.26s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 26 total: 36.79s
+[Time] Breakdown - Train: 2.41s (6.5%), Eval: 16.53s (44.9%), Gradient: 14.37s (39.1%), k-means: 0.26s (0.7%), LLM labels: 0.95s (2.6%), LLM concepts: 2.26s (6.2%)
+
+=== Round 27/100 ===
+[Time] Training: 2.02s
+Test accuracy: 76.18%
+[Time] Evaluation: 16.89s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.68s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.24s
+[Time] LLM label annotation (5 samples): 0.48s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.74s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 27 total: 37.06s
+[Time] Breakdown - Train: 2.02s (5.5%), Eval: 16.89s (45.6%), Gradient: 14.68s (39.6%), k-means: 0.24s (0.7%), LLM labels: 0.48s (1.3%), LLM concepts: 2.74s (7.4%)
+
+=== Round 28/100 ===
+[Time] Training: 2.12s
+Test accuracy: 77.38%
+[Time] Evaluation: 16.73s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.68s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.26s
+[Time] LLM label annotation (5 samples): 0.70s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 3.03s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.00s
+[Time] Round 28 total: 37.52s
+[Time] Breakdown - Train: 2.12s (5.7%), Eval: 16.73s (44.6%), Gradient: 14.68s (39.1%), k-means: 0.26s (0.7%), LLM labels: 0.70s (1.9%), LLM concepts: 3.03s (8.1%)
+
+=== Round 29/100 ===
+[Time] Training: 2.20s
+Test accuracy: 77.48%
+[Time] Evaluation: 16.51s
+[Time] Probe selection (20000 samples): 0.00s
+[Time] Gradient embedding computation (using cached features): 14.58s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.25s
+[Time] LLM label annotation (5 samples): 0.53s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.28s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.01s
+[Time] Round 29 total: 36.37s
+[Time] Breakdown - Train: 2.20s (6.0%), Eval: 16.51s (45.4%), Gradient: 14.58s (40.1%), k-means: 0.25s (0.7%), LLM labels: 0.53s (1.5%), LLM concepts: 2.28s (6.3%)
+
+=== Round 30/100 ===
+[Time] Training: 2.11s
+Test accuracy: 78.70%
+[Time] Evaluation: 16.55s
+[Time] Probe selection (20000 samples): 0.01s
+[Time] Gradient embedding computation (using cached features): 14.59s
+Selecting 5 via BADGE...
+Gradient embedding shape: (20000, 1536)
+[Time] k-means++ selection: 0.24s
+[Time] LLM label annotation (5 samples): 0.61s
+LLM annotated labels for 5 samples, with 0 failures (fallbacks applied).
+[Time] LLM concept annotation (5 samples): 2.13s
+LLM annotated concepts for 5 samples, with 0 failures.
+[Time] Dataset update: 0.00s
+[Time] Pool update: 0.01s
+[Time] Round 30 total: 36.25s
+[Time] Breakdown - Train: 2.11s (5.8%), Eval: 16.55s (45.6%), Gradient: 14.59s (40.3%), k-means: 0.24s (0.7%), LLM labels: 0.61s (1.7%), LLM concepts: 2.13s (5.9%)
+
+=== Round 31/100 ===
+[Time] Training: 2.15s
+Test accuracy: 78.02%
+[Time] Evaluation: 16.82s
+[Time] Probe selection (20000 samples): 0.01s
