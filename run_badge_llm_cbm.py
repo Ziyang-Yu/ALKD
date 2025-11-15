@@ -150,8 +150,8 @@ class CBMHead(nn.Module):
     
     这种设计使得模型首先学习可解释的概念，然后基于这些概念进行分类。
     """
-    def __init__(self, hidden_size=768, num_labels=4, n_concepts=N_CONCEPTS, hidden_task=256, dropout=0.1,
-                 concept_l1=1e-4, detach_concepts=False):
+    def __init__(self, hidden_size=768, num_labels=4, hidden_task=256, dropout=0.1,
+                 concept_l1=1e-4, detach_concepts=False, n_concepts=-1):
         super().__init__()
         self.dropout = nn.Dropout(dropout)  # Dropout 层用于正则化
         # 概念预测层：从编码器特征预测概念
@@ -688,7 +688,7 @@ def main():
     encoder.to(device)
 
     # CBM 分类头
-    head = CBMHead(hidden_size=enc_cfg.hidden_size, num_labels=num_labels, n_concepts=n_concepts, hidden_task=256, concept_l1=args.concept_l1).to(device)
+    head = CBMHead(hidden_size=enc_cfg.hidden_size, num_labels=num_labels, hidden_task=256, concept_l1=args.concept_l1, n_concepts=n_concepts).to(device)
 
     # 数据加载器
     def make_loader(idxs, shuffle):
