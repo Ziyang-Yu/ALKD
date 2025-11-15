@@ -1,0 +1,10 @@
+Already up to date.
+Latest git commit hash: bb0e381ba0f6eec1a01e119a0f50832a8c7d5deb
+
+使用数据集: amazon_polarity
+标签数量: 2
+标签: ['negative', 'positive']
+Total train: 3600000. Seed labeled: 200. Unlabeled pool: 3599800.
+================================================================================
+Round 0/20 — Labeled 200 | Unlabeled 3599800
+[Eval] Test accuracy: 59.35%

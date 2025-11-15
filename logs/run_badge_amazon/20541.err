@@ -1,0 +1,2 @@
+/var/spool/slurmd/job20541/slurm_script: line 27: 2930583 Killed                  python -u run_badge.py --dataset amazon_polarity --batch_size 16 --epochs 3 --query_size 1000 --rounds 20 --device cuda
+slurmstepd-h200server: error: Detected 1 oom-kill event(s) in StepId=20541.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.

@@ -1,0 +1,14 @@
+Updating bb0e381..c532cc0
+Fast-forward
+ run_badge_llm_cbm_modify_embedding.py | 821 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 821 insertions(+)
+ create mode 100644 run_badge_llm_cbm_modify_embedding.py
+Latest git commit hash: c532cc0382b682e73964b5c628f5a33b48a0488b
+
+使用数据集: amazon_polarity
+标签数量: 2
+标签: ['negative', 'positive']
+Total train: 3600000. Seed labeled: 50. Unlabeled pool: 3599950.
+================================================================================
+Round 0/100 — Labeled 50 | Unlabeled 3599950
+[Eval] Test accuracy: 50.00%

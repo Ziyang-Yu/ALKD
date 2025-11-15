@@ -1,0 +1,6 @@
+From github.com:Ziyang-Yu/ALKD
+   bb0e381..c532cc0  main       -> origin/main
+Some weights of RobertaModel were not initialized from the model checkpoint at FacebookAI/roberta-base and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/var/spool/slurmd/job20548/slurm_script: line 30: 3555339 Killed                  python -u run_badge_llm.py --dataset amazon_polarity --model_name FacebookAI/roberta-base --max_length 128 --seed_size 50 --query_size 5 --rounds 100 --epochs 3 --batch_size 16 --lr 0.1
+slurmstepd-h200server: error: Detected 1 oom-kill event(s) in StepId=20548.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.
