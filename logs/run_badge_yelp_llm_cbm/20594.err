@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/local/scratch/zyu273/alkd/run_badge_llm_cbm.py", line 143, in <module>
+    class CBMHead(nn.Module):
+  File "/local/scratch/zyu273/alkd/run_badge_llm_cbm.py", line 153, in CBMHead
+    def __init__(self, hidden_size=768, num_labels=4, n_concepts=N_CONCEPTS, hidden_task=256, dropout=0.1,
+NameError: name 'N_CONCEPTS' is not defined. Did you mean: 'IMDB_CONCEPTS'?
