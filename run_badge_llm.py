@@ -201,24 +201,46 @@ def train_one_round(encoder, classifier, loader, device, lr=5e-5, epochs=2, weig
             optimizer.zero_grad(set_to_none=True)
 
 @torch.no_grad()
-def evaluate(encoder, classifier, loader, device) -> float:
-    """评估模型在测试集上的准确率"""
-    encoder.eval()
+def evaluate(encoder, classifier, loader, device, cached_features: Optional[Dict[int, np.ndarray]] = None) -> float:
+    """评估模型在测试集上的准确率
+    
+    Args:
+        encoder: 编码器（如果 cached_features 为 None 则使用）
+        classifier: 分类器
+        loader: 测试数据加载器
+        device: 计算设备
+        cached_features: 可选的预计算特征字典 {idx: feature_vector}
+    """
     classifier.eval()
     correct = 0
     total = 0
 
-    for batch in loader:
-        batch = {k: v.to(device) for k, v in batch.items()}
-        encoder_outputs = encoder(
-            input_ids=batch['input_ids'],
-            attention_mask=batch['attention_mask']
-        )
-        hidden_states = encoder_outputs.last_hidden_state[:, 0]  # [CLS] 嵌入
-        logits = classifier(hidden_states)
-        preds = logits.argmax(dim=-1)  # 预测类别
-        correct += (preds == batch["labels"]).sum().item()  # 统计正确预测数
-        total += preds.numel()  # 统计总样本数
+    if cached_features is not None:
+        # 使用预计算的特征
+        for batch in loader:
+            batch = {k: v.to(device) for k, v in batch.items()}
+            
+            # 获取批次索引（HFDatasetWrapper 总是包含 idx）
+            if "idx" in batch:
+                batch_indices = batch["idx"].cpu().tolist()
+                # 从缓存中获取特征
+                h_list = [cached_features[idx] for idx in batch_indices]
+                hidden_states = torch.tensor(np.stack(h_list), dtype=torch.float32).to(device)  # [B, H]
+            else:
+                # 如果没有 idx，回退到编码器计算
+                encoder.eval()
+                encoder_outputs = encoder(
+                    input_ids=batch['input_ids'],
+                    attention_mask=batch['attention_mask']
+                )
+                hidden_states = encoder_outputs.last_hidden_state[:, 0]  # [CLS] 嵌入
+            
+            logits = classifier(hidden_states)
+            preds = logits.argmax(dim=-1)  # 预测类别
+            correct += (preds == batch["labels"]).sum().item()  # 统计正确预测数
+            total += preds.numel()  # 统计总样本数
+    else:
+        raise ValueError("cached_features must be provided. If not existing, please preprocess the encoder features first.")
 
     return correct / max(1, total)  # 返回准确率
 
@@ -754,20 +776,33 @@ def main():
 
     classifier = Classifier(hidden_size=encoder_config.hidden_size, num_labels=num_labels).to(device)
 
-    # 预处理并缓存编码器特征
+    # 预处理并缓存编码器特征（训练集和测试集）
     cache_dir = f"cache/{args.dataset}/{args.model_name.replace('/', '_')}"
-    cache_path = f"{cache_dir}/encoder_features.npz"
+    train_cache_path = f"{cache_dir}/train_encoder_features.npz"
+    test_cache_path = f"{cache_dir}/test_encoder_features.npz"
+    
     print(f"\n=== Preprocessing Encoder Features ===")
+    # 预处理训练集特征
     t0 = time.time()
-    features_array, feature_indices = preprocess_encoder_features(
-        encoder, train_ds, device, cache_path, batch_size=2048
+    train_features_array, train_feature_indices = preprocess_encoder_features(
+        encoder, train_ds, device, train_cache_path, batch_size=2048
     )
-    preprocessing_time = time.time() - t0
-    print(f"[Time] Total preprocessing time: {preprocessing_time:.2f}s")
+    train_preprocessing_time = time.time() - t0
+    print(f"[Time] Train set preprocessing time: {train_preprocessing_time:.2f}s")
+    
+    # 预处理测试集特征
+    t0 = time.time()
+    test_features_array, test_feature_indices = preprocess_encoder_features(
+        encoder, test_ds, device, test_cache_path, batch_size=2048
+    )
+    test_preprocessing_time = time.time() - t0
+    print(f"[Time] Test set preprocessing time: {test_preprocessing_time:.2f}s")
     
     # 创建特征字典以便快速查找
-    cached_features_dict = {idx: features_array[i] for i, idx in enumerate(feature_indices)}
-    print(f"Created feature cache dictionary with {len(cached_features_dict)} entries.")
+    cached_train_features_dict = {idx: train_features_array[i] for i, idx in enumerate(train_feature_indices)}
+    cached_test_features_dict = {idx: test_features_array[i] for i, idx in enumerate(test_feature_indices)}
+    print(f"Created train feature cache dictionary with {len(cached_train_features_dict)} entries.")
+    print(f"Created test feature cache dictionary with {len(cached_test_features_dict)} entries.")
 
     test_loader = DataLoader(test_ds, batch_size=128, shuffle=False, collate_fn=collate_fn)
 
@@ -782,7 +817,7 @@ def main():
         train_loader = make_loader(train_ds, pools.labeled, batch_size=args.batch_size, shuffle=True)
         if len(pools.labeled) > 0:
             train_one_round(encoder, classifier, train_loader, device, lr=args.lr, epochs=args.epochs)
-        acc = evaluate(encoder, classifier, test_loader, device)
+        acc = evaluate(encoder, classifier, test_loader, device, cached_features=cached_test_features_dict)
         print(f"[Eval] Test accuracy: {acc*100:.2f}%")
         acc_list.append(acc*100)
 
@@ -793,7 +828,7 @@ def main():
         # 使用更大的 batch size 用于推理任务（H200 GPU 可以处理更大的 batch）
         # 使用预计算的编码器特征，避免重复通过编码器
         pool_loader = make_loader(train_ds, pools.unlabeled, batch_size=2048, shuffle=False)
-        embs, _ = badge_gradient_embeddings(encoder, classifier, pool_loader, device, num_classes=num_labels, cached_features=cached_features_dict)
+        embs, _ = badge_gradient_embeddings(encoder, classifier, pool_loader, device, num_classes=num_labels, cached_features=cached_train_features_dict)
         n_pool = embs.shape[0]
         k = min(args.query_size, n_pool)
         if k == 0:
