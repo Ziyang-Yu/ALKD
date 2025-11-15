@@ -6,8 +6,8 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mem=48G
 #SBATCH --time=12:00:00
-#SBATCH --output=logs/run_badge_llm_cbm/imdb_%j.out
-#SBATCH --error=logs/run_badge_llm_cbm/imdb_%j.err
+#SBATCH --output=logs/run_badge_imdb_llm_cbm/%j.out
+#SBATCH --error=logs/run_badge_imdb_llm_cbm/%j.err
 #SBATCH --partition=h200
 
 set -euo pipefail
