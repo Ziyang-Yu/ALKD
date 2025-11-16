@@ -1,0 +1,90 @@
+Already up to date.
+Latest git commit hash: ad66f3e8ddb1afdfed6ecbaeea03e1f2a1f3694b
+
+使用数据集: yelp_polarity
+标签数量: 2
+标签: ['negative', 'positive']
+Total train: 560000. Seed labeled: 50. Unlabeled pool: 559950.
+
+=== Preprocessing Encoder Features ===
+Preprocessing encoder features for 560000 samples...
+  Progress: 3.6% (10/274 batches, 11.7s)
+  Progress: 7.3% (20/274 batches, 21.5s)
+  Progress: 10.9% (30/274 batches, 31.3s)
+  Progress: 14.6% (40/274 batches, 41.1s)
+  Progress: 18.2% (50/274 batches, 50.9s)
+  Progress: 21.9% (60/274 batches, 60.8s)
+  Progress: 25.5% (70/274 batches, 70.6s)
+  Progress: 29.2% (80/274 batches, 80.5s)
+  Progress: 32.8% (90/274 batches, 90.3s)
+  Progress: 36.5% (100/274 batches, 100.2s)
+  Progress: 40.1% (110/274 batches, 110.0s)
+  Progress: 43.8% (120/274 batches, 119.9s)
+  Progress: 47.4% (130/274 batches, 129.7s)
+  Progress: 51.1% (140/274 batches, 139.6s)
+  Progress: 54.7% (150/274 batches, 149.4s)
+  Progress: 58.4% (160/274 batches, 159.3s)
+  Progress: 62.0% (170/274 batches, 169.1s)
+  Progress: 65.7% (180/274 batches, 179.0s)
+  Progress: 69.3% (190/274 batches, 188.8s)
+  Progress: 73.0% (200/274 batches, 198.7s)
+  Progress: 76.6% (210/274 batches, 208.5s)
+  Progress: 80.3% (220/274 batches, 218.4s)
+  Progress: 83.9% (230/274 batches, 228.2s)
+  Progress: 87.6% (240/274 batches, 238.0s)
+  Progress: 91.2% (250/274 batches, 247.9s)
+  Progress: 94.9% (260/274 batches, 257.7s)
+  Progress: 98.5% (270/274 batches, 267.6s)
+Saving preprocessed features to cache/yelp_polarity/FacebookAI_roberta-base/train_encoder_features.npz...
+Saved 560000 features. Total time: 273.47s
+[Time] Train set preprocessing time: 273.47s
+Preprocessing encoder features for 38000 samples...
+  Progress: 52.6% (10/19 batches, 11.5s)
+Saving preprocessed features to cache/yelp_polarity/FacebookAI_roberta-base/test_encoder_features.npz...
+Saved 38000 features. Total time: 20.16s
+[Time] Test set preprocessing time: 20.16s
+Created train feature cache dictionary with 560000 entries.
+Created test feature cache dictionary with 38000 entries.
+================================================================================
+Round 0/100 — Labeled 50 | Unlabeled 559950
+[Eval] Test accuracy: 50.08%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 9.17 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 1/100 — Labeled 55 | Unlabeled 559945
+[Eval] Test accuracy: 50.00%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 8.69 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 2/100 — Labeled 60 | Unlabeled 559943
+[Eval] Test accuracy: 53.74%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 8.79 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 3/100 — Labeled 65 | Unlabeled 559938
+[Eval] Test accuracy: 50.00%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 8.75 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 4/100 — Labeled 70 | Unlabeled 559933
+[Eval] Test accuracy: 53.62%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 8.87 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 5/100 — Labeled 75 | Unlabeled 559928
+[Eval] Test accuracy: 64.73%
