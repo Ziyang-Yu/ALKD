@@ -1,0 +1,242 @@
+Already up to date.
+Latest git commit hash: 9cccab6548ec8b882ae5eb7ac4132a8752204d9b
+
+使用数据集: amazon_polarity
+标签数量: 2
+标签: ['negative', 'positive']
+Total train: 3600000. Seed labeled: 50. Unlabeled pool: 3599950.
+
+=== Preprocessing Encoder Features ===
+Preprocessing encoder features for 3600000 samples...
+  Progress: 0.6% (10/1758 batches, 11.1s)
+  Progress: 1.1% (20/1758 batches, 20.9s)
+  Progress: 1.7% (30/1758 batches, 30.8s)
+  Progress: 2.3% (40/1758 batches, 40.7s)
+  Progress: 2.8% (50/1758 batches, 50.5s)
+  Progress: 3.4% (60/1758 batches, 60.4s)
+  Progress: 4.0% (70/1758 batches, 70.2s)
+  Progress: 4.6% (80/1758 batches, 80.1s)
+  Progress: 5.1% (90/1758 batches, 89.9s)
+  Progress: 5.7% (100/1758 batches, 99.8s)
+  Progress: 6.3% (110/1758 batches, 109.6s)
+  Progress: 6.8% (120/1758 batches, 119.5s)
+  Progress: 7.4% (130/1758 batches, 129.3s)
+  Progress: 8.0% (140/1758 batches, 139.2s)
+  Progress: 8.5% (150/1758 batches, 149.1s)
+  Progress: 9.1% (160/1758 batches, 158.9s)
+  Progress: 9.7% (170/1758 batches, 168.8s)
+  Progress: 10.2% (180/1758 batches, 178.6s)
+  Progress: 10.8% (190/1758 batches, 188.5s)
+  Progress: 11.4% (200/1758 batches, 198.3s)
+  Progress: 11.9% (210/1758 batches, 208.2s)
+  Progress: 12.5% (220/1758 batches, 218.1s)
+  Progress: 13.1% (230/1758 batches, 227.9s)
+  Progress: 13.7% (240/1758 batches, 237.8s)
+  Progress: 14.2% (250/1758 batches, 247.6s)
+  Progress: 14.8% (260/1758 batches, 257.5s)
+  Progress: 15.4% (270/1758 batches, 267.4s)
+  Progress: 15.9% (280/1758 batches, 277.2s)
+  Progress: 16.5% (290/1758 batches, 287.1s)
+  Progress: 17.1% (300/1758 batches, 296.9s)
+  Progress: 17.6% (310/1758 batches, 306.8s)
+  Progress: 18.2% (320/1758 batches, 316.6s)
+  Progress: 18.8% (330/1758 batches, 326.5s)
+  Progress: 19.3% (340/1758 batches, 336.3s)
+  Progress: 19.9% (350/1758 batches, 346.2s)
+  Progress: 20.5% (360/1758 batches, 356.1s)
+  Progress: 21.0% (370/1758 batches, 365.9s)
+  Progress: 21.6% (380/1758 batches, 375.8s)
+  Progress: 22.2% (390/1758 batches, 385.6s)
+  Progress: 22.8% (400/1758 batches, 395.5s)
+  Progress: 23.3% (410/1758 batches, 405.3s)
+  Progress: 23.9% (420/1758 batches, 415.2s)
+  Progress: 24.5% (430/1758 batches, 425.0s)
+  Progress: 25.0% (440/1758 batches, 434.9s)
+  Progress: 25.6% (450/1758 batches, 444.7s)
+  Progress: 26.2% (460/1758 batches, 454.6s)
+  Progress: 26.7% (470/1758 batches, 464.5s)
+  Progress: 27.3% (480/1758 batches, 474.3s)
+  Progress: 27.9% (490/1758 batches, 484.2s)
+  Progress: 28.4% (500/1758 batches, 494.0s)
+  Progress: 29.0% (510/1758 batches, 503.9s)
+  Progress: 29.6% (520/1758 batches, 513.8s)
+  Progress: 30.1% (530/1758 batches, 523.6s)
+  Progress: 30.7% (540/1758 batches, 533.5s)
+  Progress: 31.3% (550/1758 batches, 543.3s)
+  Progress: 31.9% (560/1758 batches, 553.2s)
+  Progress: 32.4% (570/1758 batches, 563.0s)
+  Progress: 33.0% (580/1758 batches, 572.9s)
+  Progress: 33.6% (590/1758 batches, 582.7s)
+  Progress: 34.1% (600/1758 batches, 592.6s)
+  Progress: 34.7% (610/1758 batches, 602.5s)
+  Progress: 35.3% (620/1758 batches, 612.3s)
+  Progress: 35.8% (630/1758 batches, 622.2s)
+  Progress: 36.4% (640/1758 batches, 632.0s)
+  Progress: 37.0% (650/1758 batches, 641.9s)
+  Progress: 37.5% (660/1758 batches, 651.7s)
+  Progress: 38.1% (670/1758 batches, 661.6s)
+  Progress: 38.7% (680/1758 batches, 671.4s)
+  Progress: 39.2% (690/1758 batches, 681.3s)
+  Progress: 39.8% (700/1758 batches, 691.1s)
+  Progress: 40.4% (710/1758 batches, 701.0s)
+  Progress: 41.0% (720/1758 batches, 710.8s)
+  Progress: 41.5% (730/1758 batches, 720.7s)
+  Progress: 42.1% (740/1758 batches, 730.5s)
+  Progress: 42.7% (750/1758 batches, 740.4s)
+  Progress: 43.2% (760/1758 batches, 750.3s)
+  Progress: 43.8% (770/1758 batches, 760.1s)
+  Progress: 44.4% (780/1758 batches, 770.0s)
+  Progress: 44.9% (790/1758 batches, 779.8s)
+  Progress: 45.5% (800/1758 batches, 789.7s)
+  Progress: 46.1% (810/1758 batches, 799.5s)
+  Progress: 46.6% (820/1758 batches, 809.4s)
+  Progress: 47.2% (830/1758 batches, 819.2s)
+  Progress: 47.8% (840/1758 batches, 829.1s)
+  Progress: 48.4% (850/1758 batches, 838.9s)
+  Progress: 48.9% (860/1758 batches, 848.8s)
+  Progress: 49.5% (870/1758 batches, 858.6s)
+  Progress: 50.1% (880/1758 batches, 868.5s)
+  Progress: 50.6% (890/1758 batches, 878.3s)
+  Progress: 51.2% (900/1758 batches, 888.2s)
+  Progress: 51.8% (910/1758 batches, 898.0s)
+  Progress: 52.3% (920/1758 batches, 907.9s)
+  Progress: 52.9% (930/1758 batches, 917.7s)
+  Progress: 53.5% (940/1758 batches, 927.6s)
+  Progress: 54.0% (950/1758 batches, 937.4s)
+  Progress: 54.6% (960/1758 batches, 947.3s)
+  Progress: 55.2% (970/1758 batches, 957.1s)
+  Progress: 55.7% (980/1758 batches, 967.0s)
+  Progress: 56.3% (990/1758 batches, 976.8s)
+  Progress: 56.9% (1000/1758 batches, 986.7s)
+  Progress: 57.5% (1010/1758 batches, 996.5s)
+  Progress: 58.0% (1020/1758 batches, 1006.4s)
+  Progress: 58.6% (1030/1758 batches, 1016.3s)
+  Progress: 59.2% (1040/1758 batches, 1026.1s)
+  Progress: 59.7% (1050/1758 batches, 1036.0s)
+  Progress: 60.3% (1060/1758 batches, 1045.8s)
+  Progress: 60.9% (1070/1758 batches, 1055.7s)
+  Progress: 61.4% (1080/1758 batches, 1065.5s)
+  Progress: 62.0% (1090/1758 batches, 1075.4s)
+  Progress: 62.6% (1100/1758 batches, 1085.2s)
+  Progress: 63.1% (1110/1758 batches, 1095.1s)
+  Progress: 63.7% (1120/1758 batches, 1104.9s)
+  Progress: 64.3% (1130/1758 batches, 1114.8s)
+  Progress: 64.8% (1140/1758 batches, 1124.6s)
+  Progress: 65.4% (1150/1758 batches, 1134.5s)
+  Progress: 66.0% (1160/1758 batches, 1144.3s)
+  Progress: 66.6% (1170/1758 batches, 1154.2s)
+  Progress: 67.1% (1180/1758 batches, 1164.0s)
+  Progress: 67.7% (1190/1758 batches, 1173.9s)
+  Progress: 68.3% (1200/1758 batches, 1183.8s)
+  Progress: 68.8% (1210/1758 batches, 1193.6s)
+  Progress: 69.4% (1220/1758 batches, 1203.5s)
+  Progress: 70.0% (1230/1758 batches, 1213.3s)
+  Progress: 70.5% (1240/1758 batches, 1223.2s)
+  Progress: 71.1% (1250/1758 batches, 1233.0s)
+  Progress: 71.7% (1260/1758 batches, 1242.9s)
+  Progress: 72.2% (1270/1758 batches, 1252.7s)
+  Progress: 72.8% (1280/1758 batches, 1262.6s)
+  Progress: 73.4% (1290/1758 batches, 1272.4s)
+  Progress: 73.9% (1300/1758 batches, 1282.3s)
+  Progress: 74.5% (1310/1758 batches, 1292.1s)
+  Progress: 75.1% (1320/1758 batches, 1302.0s)
+  Progress: 75.7% (1330/1758 batches, 1311.8s)
+  Progress: 76.2% (1340/1758 batches, 1321.7s)
+  Progress: 76.8% (1350/1758 batches, 1331.5s)
+  Progress: 77.4% (1360/1758 batches, 1341.4s)
+  Progress: 77.9% (1370/1758 batches, 1351.2s)
+  Progress: 78.5% (1380/1758 batches, 1361.1s)
+  Progress: 79.1% (1390/1758 batches, 1370.9s)
+  Progress: 79.6% (1400/1758 batches, 1380.8s)
+  Progress: 80.2% (1410/1758 batches, 1390.6s)
+  Progress: 80.8% (1420/1758 batches, 1400.5s)
+  Progress: 81.3% (1430/1758 batches, 1410.3s)
+  Progress: 81.9% (1440/1758 batches, 1420.2s)
+  Progress: 82.5% (1450/1758 batches, 1430.0s)
+  Progress: 83.0% (1460/1758 batches, 1439.9s)
+  Progress: 83.6% (1470/1758 batches, 1449.7s)
+  Progress: 84.2% (1480/1758 batches, 1459.6s)
+  Progress: 84.8% (1490/1758 batches, 1469.5s)
+  Progress: 85.3% (1500/1758 batches, 1479.3s)
+  Progress: 85.9% (1510/1758 batches, 1489.2s)
+  Progress: 86.5% (1520/1758 batches, 1499.0s)
+  Progress: 87.0% (1530/1758 batches, 1508.9s)
+  Progress: 87.6% (1540/1758 batches, 1518.7s)
+  Progress: 88.2% (1550/1758 batches, 1528.6s)
+  Progress: 88.7% (1560/1758 batches, 1538.4s)
+  Progress: 89.3% (1570/1758 batches, 1548.3s)
+  Progress: 89.9% (1580/1758 batches, 1558.1s)
+  Progress: 90.4% (1590/1758 batches, 1568.0s)
+  Progress: 91.0% (1600/1758 batches, 1577.8s)
+  Progress: 91.6% (1610/1758 batches, 1587.7s)
+  Progress: 92.2% (1620/1758 batches, 1597.6s)
+  Progress: 92.7% (1630/1758 batches, 1607.4s)
+  Progress: 93.3% (1640/1758 batches, 1617.3s)
+  Progress: 93.9% (1650/1758 batches, 1627.1s)
+  Progress: 94.4% (1660/1758 batches, 1637.0s)
+  Progress: 95.0% (1670/1758 batches, 1646.8s)
+  Progress: 95.6% (1680/1758 batches, 1656.7s)
+  Progress: 96.1% (1690/1758 batches, 1666.5s)
+  Progress: 96.7% (1700/1758 batches, 1676.4s)
+  Progress: 97.3% (1710/1758 batches, 1686.2s)
+  Progress: 97.8% (1720/1758 batches, 1696.1s)
+  Progress: 98.4% (1730/1758 batches, 1705.9s)
+  Progress: 99.0% (1740/1758 batches, 1715.8s)
+  Progress: 99.5% (1750/1758 batches, 1725.6s)
+Saving preprocessed features to cache/amazon_polarity/FacebookAI_roberta-base/train_encoder_features.npz...
+Saved 3600000 features. Total time: 1748.93s
+[Time] Train set preprocessing time: 1748.93s
+Preprocessing encoder features for 400000 samples...
+  Progress: 5.1% (10/196 batches, 11.1s)
+  Progress: 10.2% (20/196 batches, 21.0s)
+  Progress: 15.3% (30/196 batches, 30.9s)
+  Progress: 20.4% (40/196 batches, 40.7s)
+  Progress: 25.5% (50/196 batches, 50.6s)
+  Progress: 30.6% (60/196 batches, 60.5s)
+  Progress: 35.7% (70/196 batches, 70.4s)
+  Progress: 40.8% (80/196 batches, 80.3s)
+  Progress: 45.9% (90/196 batches, 90.2s)
+  Progress: 51.0% (100/196 batches, 100.1s)
+  Progress: 56.1% (110/196 batches, 110.0s)
+  Progress: 61.2% (120/196 batches, 119.9s)
+  Progress: 66.3% (130/196 batches, 129.8s)
+  Progress: 71.4% (140/196 batches, 139.7s)
+  Progress: 76.5% (150/196 batches, 149.5s)
+  Progress: 81.6% (160/196 batches, 159.4s)
+  Progress: 86.7% (170/196 batches, 169.3s)
+  Progress: 91.8% (180/196 batches, 179.2s)
+  Progress: 96.9% (190/196 batches, 189.1s)
+Saving preprocessed features to cache/amazon_polarity/FacebookAI_roberta-base/test_encoder_features.npz...
+Saved 400000 features. Total time: 196.61s
+[Time] Test set preprocessing time: 196.61s
+Created train feature cache dictionary with 3600000 entries.
+Created test feature cache dictionary with 400000 entries.
+================================================================================
+Round 0/100 — Labeled 50 | Unlabeled 3599950
+[Eval] Test accuracy: 50.92%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 61.07 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 1/100 — Labeled 55 | Unlabeled 3599945
+[Eval] Test accuracy: 56.59%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 63.69 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 2/100 — Labeled 60 | Unlabeled 3599940
+[Eval] Test accuracy: 50.00%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 62.99 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 3/100 — Labeled 65 | Unlabeled 3599937
+[Eval] Test accuracy: 67.27%
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...

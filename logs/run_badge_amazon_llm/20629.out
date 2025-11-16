@@ -1,0 +1,37 @@
+Already up to date.
+Latest git commit hash: 102803ce498c1cb08fcc1a06407085fe0861acef
+
+使用数据集: amazon_polarity
+标签数量: 2
+标签: ['negative', 'positive']
+Total train: 3600000. Seed labeled: 50. Unlabeled pool: 3599950.
+
+=== Preprocessing Encoder Features ===
+Loading preprocessed features from cache/amazon_polarity/FacebookAI_roberta-base/train_encoder_features.npz...
+Loaded 3600000 preprocessed features.
+[Time] Train set preprocessing time: 10.52s
+Loading preprocessed features from cache/amazon_polarity/FacebookAI_roberta-base/test_encoder_features.npz...
+Loaded 400000 preprocessed features.
+[Time] Test set preprocessing time: 1.10s
+Created train feature cache dictionary with 3600000 entries.
+Created test feature cache dictionary with 400000 entries.
+================================================================================
+Round 0/100 — Labeled 50 | Unlabeled 3599950
+[Eval] Test accuracy: 50.00%
+[Time] Probe selection (20000 samples): 0.26s
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 0.25 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 1/100 — Labeled 55 | Unlabeled 3599945
+[Eval] Test accuracy: 50.00%
+[Time] Probe selection (20000 samples): 0.26s
+Selecting 5 points via BADGE (k-means++ in gradient space)...
+Using sklearn k-means++ for selection...
+Selection took 0.28 seconds.
+Annotating 5 selected samples...
+LLM annotations received (with selective fallback if needed).
+================================================================================
+Round 2/100 — Labeled 60 | Unlabeled 3599940
