@@ -1,0 +1,43 @@
+Already up to date.
+====================
+Arguments:
+====================
+model_name: FacebookAI/roberta-base
+max_length: 128
+dataset: amazon_polarity
+seed_size: 50
+query_size: 5
+rounds: 100
+epochs: 5
+batch_size: 16
+lr: 0.1
+alpha_concept: 1.0
+concept_l1: 0.0001
+device: cuda
+seed: 42
+cache_dir: None
+llm_model: gpt-4o-mini
+llm_api_key_env: OPENAI_API_KEY
+llm_workers: 8
+Latest git commit hash: 385fae592118b080eee6d166e1719b2bbe068594
+
+使用数据集: amazon_polarity
+标签数量: 2
+概念数量: 24
+标签: ['negative', 'positive']
+Seed labeled=50, unlabeled=3599950
+
+=== Preprocessing Encoder Features ===
+Loading preprocessed features from cache/amazon_polarity/FacebookAI_roberta-base/train_encoder_features.npz...
+Loaded 3600000 preprocessed features.
+[Time] Train set preprocessing time: 9.23s
+Loading preprocessed features from cache/amazon_polarity/FacebookAI_roberta-base/test_encoder_features.npz...
+Loaded 400000 preprocessed features.
+[Time] Test set preprocessing time: 0.90s
+Created train feature cache dictionary with 3600000 entries.
+Created test feature cache dictionary with 400000 entries.
+LLM annotated concepts for initial 50 samples, with 0 failures.
+Begin Iterative Annotation...
+
+=== Round 0/100 ===
+[Time] Training: 1.81s
