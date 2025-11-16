@@ -825,9 +825,16 @@ def main():
             break
 
         # BADGE 选择：计算梯度嵌入，然后使用 k-means++ 选择
+        # 在未标注池的随机子集上计算梯度嵌入（可选，用于加速）
+        t0 = time.time()
+        probe_count = min(20000, len(pools.unlabeled))
+        probe_idx = np.random.choice(pools.unlabeled, size=probe_count, replace=False).tolist() if probe_count > 0 else []
+        probe_selection_time = time.time() - t0
+        print(f"[Time] Probe selection ({probe_count} samples): {probe_selection_time:.2f}s")
+        
         # 使用更大的 batch size 用于推理任务（H200 GPU 可以处理更大的 batch）
         # 使用预计算的编码器特征，避免重复通过编码器
-        pool_loader = make_loader(train_ds, pools.unlabeled, batch_size=2048, shuffle=False)
+        pool_loader = make_loader(train_ds, probe_idx, batch_size=2048, shuffle=False)
         embs, _ = badge_gradient_embeddings(encoder, classifier, pool_loader, device, num_classes=num_labels, cached_features=cached_train_features_dict)
         n_pool = embs.shape[0]
         k = min(args.query_size, n_pool)
